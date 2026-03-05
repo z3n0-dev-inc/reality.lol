@@ -1,892 +1,822 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>void.bio — Build Your Profile</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --p: #00CED1;
-      --s: #FF6B9E;
-      --bg: #07070F;
-      --surface: #0D0D20;
-      --card: rgba(13,13,32,0.92);
-      --border: rgba(0,206,209,0.18);
-      --text: #E8E8FF;
-      --muted: rgba(232,232,255,0.4);
-    }
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>void.bio — Customize</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── reset body for this page ── */
+        body {
+            cursor: none;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: #0A0A1A;
+            min-height: 100vh;
+        }
 
-    body {
-      font-family: 'Space Mono', monospace;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-      cursor: none;
-    }
+        /* ── full page bg ── */
+        .cust-bg {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 80% 60% at 10% 10%, rgba(0,206,209,0.07), transparent),
+                radial-gradient(ellipse 60% 70% at 90% 90%, rgba(255,107,158,0.06), transparent),
+                #0A0A1A;
+        }
+        .cust-grid-lines {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(0,206,209,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,206,209,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
 
-    /* ── CURSOR ─────────────────────────────────────────────────── */
-    #c { position:fixed; width:18px; height:18px; border:2px solid var(--p); border-radius:50%; pointer-events:none; z-index:99999; transform:translate(-50%,-50%); mix-blend-mode:difference; transition:width .12s,height .12s; }
-    #cd { position:fixed; width:4px; height:4px; border-radius:50%; background:var(--p); pointer-events:none; z-index:99999; transform:translate(-50%,-50%); }
+        /* ── wrapper ── */
+        .cust-wrap {
+            position: relative; z-index: 10;
+            max-width: 900px; margin: 0 auto;
+            padding: 60px 24px 120px;
+        }
 
-    /* ── BACKGROUND ─────────────────────────────────────────────── */
-    .bg-grid { position:fixed; inset:0; z-index:0; pointer-events:none; background-image:linear-gradient(rgba(0,206,209,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,206,209,.03) 1px,transparent 1px); background-size:48px 48px; }
-    .bg-glow  { position:fixed; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse 70% 50% at 15% 10%,rgba(0,206,209,.07),transparent),radial-gradient(ellipse 50% 60% at 85% 90%,rgba(255,107,158,.06),transparent); }
+        /* ── hero ── */
+        .cust-hero {
+            text-align: center; margin-bottom: 70px;
+        }
+        .cust-hero .eyebrow {
+            font-size: 10px; letter-spacing: 5px; color: rgba(224,224,255,0.4);
+            text-transform: uppercase; margin-bottom: 20px;
+        }
+        .cust-hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(36px, 7vw, 72px);
+            font-weight: 900; line-height: 1;
+            background: linear-gradient(135deg, var(--primary-color, #00CED1), var(--secondary-color, #FF6B9E));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: 4px; margin-bottom: 16px;
+        }
+        .cust-hero p {
+            font-size: 13px; color: rgba(224,224,255,0.5);
+            line-height: 1.8; max-width: 480px; margin: 0 auto;
+        }
+        .hero-tags {
+            display: flex; gap: 8px; justify-content: center;
+            flex-wrap: wrap; margin-top: 24px;
+        }
+        .hero-tag {
+            padding: 5px 14px; border-radius: 20px; font-size: 10px;
+            letter-spacing: 2px; border: 1px solid rgba(0,206,209,0.25);
+            color: var(--primary-color, #00CED1);
+            background: rgba(0,206,209,0.06);
+        }
 
-    /* ── HERO ───────────────────────────────────────────────────── */
-    #hero {
-      position:relative; z-index:10;
-      min-height:100vh; display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      padding:40px 24px; text-align:center; gap:0;
-    }
-    .hero-eyebrow {
-      font-size:10px; letter-spacing:5px; color:var(--muted);
-      text-transform:uppercase; margin-bottom:24px;
-      opacity:0; animation:fadeUp .6s ease-out .1s forwards;
-    }
-    .hero-logo {
-      font-family:'Orbitron',sans-serif; font-weight:900;
-      font-size:clamp(52px,10vw,110px);
-      background:linear-gradient(135deg,var(--p) 30%,var(--s));
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-      letter-spacing:6px; line-height:1;
-      opacity:0; animation:fadeUp .7s ease-out .2s forwards;
-    }
-    .hero-dot {
-      display:inline-block; width:14px; height:14px; border-radius:50%;
-      background:var(--s); margin-left:4px; vertical-align:middle;
-      animation:bop 2s ease-in-out infinite;
-    }
-    @keyframes bop { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
-    .hero-sub {
-      font-size:clamp(13px,2vw,16px); color:var(--muted);
-      margin-top:20px; line-height:1.8; max-width:520px;
-      opacity:0; animation:fadeUp .7s ease-out .35s forwards;
-    }
-    .hero-pills {
-      display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
-      margin-top:28px;
-      opacity:0; animation:fadeUp .7s ease-out .5s forwards;
-    }
-    .pill {
-      padding:6px 16px; border-radius:20px; font-size:11px; letter-spacing:1px;
-      border:1px solid var(--border); color:var(--muted); background:rgba(255,255,255,.03);
-    }
-    .pill.hot { border-color:rgba(0,206,209,.5); color:var(--p); background:rgba(0,206,209,.06); }
-    .hero-cta {
-      margin-top:48px; display:flex; gap:14px; flex-wrap:wrap; justify-content:center;
-      opacity:0; animation:fadeUp .7s ease-out .65s forwards;
-    }
-    .btn-main {
-      padding:14px 36px; border-radius:30px; border:none; cursor:pointer;
-      background:linear-gradient(135deg,var(--p),var(--s));
-      color:#000; font-family:'Space Mono',monospace; font-weight:700;
-      font-size:13px; letter-spacing:2px; text-transform:uppercase;
-      transition:transform .2s,box-shadow .2s;
-      box-shadow:0 0 0 rgba(0,206,209,0);
-    }
-    .btn-main:hover { transform:translateY(-3px); box-shadow:0 12px 40px rgba(0,206,209,.35); }
-    .btn-ghost {
-      padding:14px 32px; border-radius:30px; border:1px solid var(--border);
-      background:none; color:var(--muted); font-family:'Space Mono',monospace;
-      font-size:12px; letter-spacing:2px; cursor:pointer; transition:all .2s;
-    }
-    .btn-ghost:hover { border-color:var(--p); color:var(--text); }
+        /* ── step indicator ── */
+        .step-indicator {
+            display: flex; align-items: center; justify-content: center;
+            gap: 0; margin-bottom: 48px;
+        }
+        .si-step {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            cursor: pointer;
+        }
+        .si-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.15);
+            background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.4);
+            transition: all 0.3s;
+        }
+        .si-step.active .si-dot {
+            border-color: var(--primary-color, #00CED1);
+            background: rgba(0,206,209,0.15);
+            color: var(--primary-color, #00CED1);
+            box-shadow: 0 0 15px rgba(0,206,209,0.3);
+        }
+        .si-step.done .si-dot {
+            border-color: #22C55E;
+            background: rgba(34,197,94,0.15);
+            color: #22C55E;
+        }
+        .si-label {
+            font-size: 9px; letter-spacing: 2px; color: rgba(224,224,255,0.3);
+            text-transform: uppercase;
+        }
+        .si-step.active .si-label { color: var(--primary-color, #00CED1); }
+        .si-line {
+            flex: 1; height: 1px; max-width: 60px;
+            background: rgba(255,255,255,0.08);
+            margin-bottom: 22px;
+        }
 
-    .scroll-hint {
-      position:absolute; bottom:32px; left:50%; transform:translateX(-50%);
-      font-size:10px; color:var(--muted); letter-spacing:3px;
-      display:flex; flex-direction:column; align-items:center; gap:8px;
-      opacity:0; animation:fadeUp .7s ease-out 1s forwards;
-    }
-    .scroll-arrow { width:1px; height:40px; background:linear-gradient(var(--p),transparent); animation:scrollAnim 1.5s ease-in-out infinite; }
-    @keyframes scrollAnim { 0%,100%{transform:scaleY(1);opacity:1;} 50%{transform:scaleY(.5);opacity:.3;} }
+        /* ── panel card ── */
+        .panel {
+            display: none;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 36px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            animation: panelIn 0.35s ease-out;
+        }
+        .panel.active { display: block; }
+        @keyframes panelIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .panel-title {
+            font-family: 'Orbitron', sans-serif; font-weight: 900;
+            font-size: 24px; margin-bottom: 6px;
+            background: linear-gradient(135deg, var(--primary-color,#00CED1), var(--secondary-color,#FF6B9E));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .panel-sub {
+            font-size: 12px; color: rgba(224,224,255,0.45);
+            margin-bottom: 32px; line-height: 1.8;
+        }
 
-    /* ── FEATURES STRIP ─────────────────────────────────────────── */
-    #features {
-      position:relative; z-index:10;
-      padding:80px 24px; max-width:1100px; margin:0 auto;
-    }
-    .section-label {
-      font-size:10px; letter-spacing:5px; color:var(--muted);
-      text-transform:uppercase; text-align:center; margin-bottom:16px;
-    }
-    .section-title {
-      font-family:'Orbitron',sans-serif; font-size:clamp(22px,4vw,36px);
-      font-weight:900; text-align:center; margin-bottom:48px;
-    }
-    .section-title span { background:linear-gradient(135deg,var(--p),var(--s)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    .feat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-    @media(max-width:700px){ .feat-grid{grid-template-columns:1fr;} }
-    .feat-card {
-      background:var(--card); border:1px solid var(--border);
-      border-radius:16px; padding:28px 24px;
-      backdrop-filter:blur(12px);
-      transition:border-color .2s,transform .2s,box-shadow .2s;
-    }
-    .feat-card:hover { border-color:rgba(0,206,209,.4); transform:translateY(-4px); box-shadow:0 20px 50px rgba(0,0,0,.4); }
-    .feat-icon { font-size:32px; margin-bottom:14px; }
-    .feat-name { font-family:'Orbitron',sans-serif; font-size:13px; letter-spacing:2px; margin-bottom:8px; color:var(--p); }
-    .feat-desc { font-size:12px; color:var(--muted); line-height:1.8; }
-    .feat-tag { display:inline-block; margin-top:12px; padding:3px 10px; border-radius:10px; font-size:9px; letter-spacing:2px; background:rgba(0,206,209,.1); color:var(--p); border:1px solid rgba(0,206,209,.2); }
+        /* ── two column ── */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media(max-width:640px) { .two-col { grid-template-columns: 1fr; } }
+        .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        @media(max-width:540px) { .three-col { grid-template-columns: 1fr 1fr; } }
 
-    /* ── EDITOR SECTION ─────────────────────────────────────────── */
-    #editor {
-      position:relative; z-index:10;
-      padding:80px 24px 120px; max-width:1200px; margin:0 auto;
-    }
-    .editor-layout { display:grid; grid-template-columns:1fr 380px; gap:32px; align-items:start; }
-    @media(max-width:900px){ .editor-layout{grid-template-columns:1fr;} }
+        /* ── form fields ── */
+        .field { margin-bottom: 20px; }
+        .field label {
+            display: block; font-size: 10px; letter-spacing: 2px;
+            color: rgba(224,224,255,0.45); text-transform: uppercase; margin-bottom: 8px;
+        }
+        .field input[type="text"],
+        .field input[type="url"],
+        .field textarea,
+        .field select {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px; padding: 12px 16px;
+            color: #E0E0FF; font-family: 'Space Mono', monospace;
+            font-size: 12px; outline: none; resize: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .field input:focus, .field textarea:focus, .field select:focus {
+            border-color: var(--primary-color, #00CED1);
+            background: rgba(0,206,209,0.04);
+        }
+        .field select option { background: #0A0A1A; }
+        .field-hint { font-size: 10px; color: rgba(224,224,255,0.3); margin-top: 6px; }
+        .char-count { font-size: 10px; color: rgba(224,224,255,0.3); text-align: right; margin-top: 4px; }
 
-    /* Steps sidebar */
-    .steps-nav { display:flex; flex-direction:column; gap:4px; margin-bottom:32px; }
-    .step-btn {
-      display:flex; align-items:center; gap:14px;
-      padding:14px 18px; border-radius:12px; cursor:pointer;
-      border:1px solid transparent; background:none;
-      color:var(--muted); font-family:'Space Mono',monospace;
-      font-size:12px; letter-spacing:1px; text-align:left;
-      transition:all .2s;
-    }
-    .step-btn:hover { background:rgba(255,255,255,.03); color:var(--text); }
-    .step-btn.active { background:rgba(0,206,209,.08); border-color:rgba(0,206,209,.3); color:var(--p); }
-    .step-num {
-      width:28px; height:28px; border-radius:50%; flex-shrink:0;
-      display:flex; align-items:center; justify-content:center;
-      font-size:11px; font-weight:700;
-      background:rgba(255,255,255,.05); border:1px solid var(--border);
-    }
-    .step-btn.active .step-num { background:var(--p); color:#000; border-color:var(--p); }
-    .step-btn.done .step-num { background:rgba(34,197,94,.2); border-color:#22C55E; color:#22C55E; }
-    .step-btn.done .step-num::after { content:"✓"; }
+        /* ── upload zones ── */
+        .upload-zone {
+            border: 1px dashed rgba(0,206,209,0.3); border-radius: 12px;
+            padding: 28px 20px; text-align: center; cursor: pointer;
+            position: relative; transition: all 0.2s;
+            background: rgba(255,255,255,0.02);
+        }
+        .upload-zone:hover {
+            border-color: var(--primary-color, #00CED1);
+            background: rgba(0,206,209,0.04);
+        }
+        .upload-zone input[type="file"] {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer;
+            width: 100%; height: 100%;
+        }
+        .upload-zone.done { border-color: rgba(34,197,94,0.5); background: rgba(34,197,94,0.04); }
+        .uz-icon { font-size: 32px; margin-bottom: 8px; }
+        .uz-text { font-size: 13px; color: #E0E0FF; margin-bottom: 4px; }
+        .uz-hint { font-size: 10px; color: rgba(224,224,255,0.35); }
 
-    /* Step panels */
-    .step-panel { display:none; }
-    .step-panel.active { display:block; animation:fadeIn .3s ease-out; }
-    @keyframes fadeIn { from{opacity:0;transform:translateX(10px);} to{opacity:1;transform:translateX(0);} }
+        /* avatar upload row */
+        .avatar-upload-row { display: flex; gap: 20px; align-items: center; }
+        .av-preview {
+            width: 90px; height: 90px; border-radius: 50%;
+            object-fit: cover; border: 2px solid rgba(0,206,209,0.3);
+            flex-shrink: 0; background: #111;
+        }
+        .avatar-upload-row .upload-zone { flex: 1; padding: 18px; }
 
-    .panel-title {
-      font-family:'Orbitron',sans-serif; font-size:22px; font-weight:900;
-      margin-bottom:6px;
-    }
-    .panel-sub { font-size:12px; color:var(--muted); margin-bottom:32px; line-height:1.7; }
+        /* ── selector tiles ── */
+        .sel-tile {
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 16px 10px;
+            text-align: center; cursor: pointer;
+            background: rgba(255,255,255,0.02);
+            transition: all 0.2s;
+        }
+        .sel-tile:hover {
+            border-color: rgba(0,206,209,0.4);
+            background: rgba(0,206,209,0.04);
+        }
+        .sel-tile.on {
+            border-color: var(--primary-color, #00CED1);
+            background: rgba(0,206,209,0.1);
+            box-shadow: 0 0 20px rgba(0,206,209,0.1);
+        }
+        .sel-tile .tile-icon { font-size: 28px; margin-bottom: 6px; }
+        .sel-tile .tile-name { font-size: 9px; letter-spacing: 2px; color: rgba(224,224,255,0.4); }
+        .sel-tile.on .tile-name { color: var(--primary-color, #00CED1); }
 
-    /* Form */
-    .field { margin-bottom:22px; }
-    .field label { display:block; font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
-    .field input[type="text"],
-    .field input[type="url"],
-    .field textarea,
-    .field select {
-      width:100%; background:rgba(255,255,255,.04);
-      border:1px solid var(--border); border-radius:10px;
-      padding:12px 16px; color:var(--text);
-      font-family:'Space Mono',monospace; font-size:12px;
-      outline:none; transition:border-color .2s,background .2s;
-      resize:none;
-    }
-    .field input:focus, .field textarea:focus, .field select:focus {
-      border-color:var(--p); background:rgba(0,206,209,.04);
-    }
-    .field select option { background:#0D0D20; }
-    .field-hint { font-size:10px; color:var(--muted); margin-top:6px; }
-    .char-count { font-size:10px; color:var(--muted); text-align:right; margin-top:4px; }
+        /* ── color swatches ── */
+        .swatches { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+        .swatch {
+            width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
+            border: 3px solid transparent; transition: all 0.2s;
+        }
+        .swatch:hover { transform: scale(1.15); }
+        .swatch.on { border-color: #fff; box-shadow: 0 0 16px rgba(255,255,255,0.3); }
+        .custom-colors { display: flex; gap: 20px; align-items: center; margin-top: 10px; }
+        .custom-colors label { font-size: 10px; letter-spacing: 1px; color: rgba(224,224,255,0.4); }
+        input[type="color"] { width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); cursor: pointer; padding: 2px; background: none; outline: none; }
 
-    /* Upload zones */
-    .upload-zone {
-      border:1px dashed rgba(0,206,209,.3); border-radius:12px;
-      padding:28px; text-align:center; cursor:pointer; position:relative;
-      transition:all .2s; background:rgba(255,255,255,.02);
-    }
-    .upload-zone:hover { border-color:var(--p); background:rgba(0,206,209,.04); }
-    .upload-zone input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
-    .upload-zone .uz-icon { font-size:36px; margin-bottom:10px; }
-    .upload-zone .uz-text { font-size:13px; color:var(--text); margin-bottom:4px; }
-    .upload-zone .uz-hint { font-size:10px; color:var(--muted); }
-    .upload-zone.has-file { border-color:rgba(34,197,94,.4); background:rgba(34,197,94,.04); }
-    .upload-zone.has-file .uz-icon::after { content:" ✓"; font-size:18px; }
+        /* ── badge picker ── */
+        .badge-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+        .bp-item {
+            width: 46px; height: 46px; border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; cursor: pointer; transition: all 0.2s;
+            position: relative;
+        }
+        .bp-item:hover { border-color: var(--primary-color, #00CED1); transform: scale(1.1); }
+        .bp-item.on {
+            border-color: var(--primary-color, #00CED1);
+            background: rgba(0,206,209,0.12);
+            box-shadow: 0 0 12px rgba(0,206,209,0.25);
+        }
+        .bp-tip {
+            position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
+            font-size: 8px; color: rgba(224,224,255,0.4); white-space: nowrap;
+            opacity: 0; transition: opacity 0.2s; pointer-events: none;
+        }
+        .bp-item:hover .bp-tip { opacity: 1; }
 
-    .avatar-row { display:flex; gap:20px; align-items:center; }
-    .avatar-preview { width:90px; height:90px; border-radius:50%; object-fit:cover; border:2px solid var(--border); flex-shrink:0; background:#111; }
-    .avatar-row .upload-zone { flex:1; padding:20px; }
+        /* ── social rows ── */
+        .social-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .social-row select {
+            width: 130px; flex-shrink: 0;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; padding: 10px 12px; color: #E0E0FF;
+            font-family: 'Space Mono', monospace; font-size: 11px; outline: none;
+        }
+        .social-row input {
+            flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; padding: 10px 12px; color: #E0E0FF;
+            font-family: 'Space Mono', monospace; font-size: 11px; outline: none;
+        }
+        .social-row select:focus, .social-row input:focus { border-color: var(--primary-color, #00CED1); }
+        .del-btn {
+            width: 38px; height: 38px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+            background: none; color: rgba(224,224,255,0.4); cursor: pointer;
+            font-size: 14px; transition: all 0.2s; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .del-btn:hover { border-color: #EF4444; color: #EF4444; }
+        .add-row-btn {
+            display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+            border: 1px dashed rgba(255,255,255,0.15); border-radius: 8px;
+            background: none; color: rgba(224,224,255,0.4); cursor: pointer;
+            font-family: 'Space Mono', monospace; font-size: 11px;
+            letter-spacing: 1px; transition: all 0.2s; margin-top: 4px;
+        }
+        .add-row-btn:hover { border-color: var(--primary-color, #00CED1); color: #E0E0FF; }
 
-    /* Grid selectors */
-    .sel-grid { display:grid; gap:10px; }
-    .sel-grid.cols2 { grid-template-columns:1fr 1fr; }
-    .sel-grid.cols3 { grid-template-columns:1fr 1fr 1fr; }
-    .sel-item {
-      padding:14px 10px; border-radius:12px; cursor:pointer;
-      border:1px solid var(--border); background:rgba(255,255,255,.02);
-      text-align:center; transition:all .2s;
-    }
-    .sel-item:hover { border-color:rgba(0,206,209,.4); background:rgba(0,206,209,.04); }
-    .sel-item.on { border-color:var(--p); background:rgba(0,206,209,.1); box-shadow:0 0 20px rgba(0,206,209,.1); }
-    .sel-item .si-icon { font-size:28px; margin-bottom:6px; }
-    .sel-item .si-name { font-size:10px; color:var(--muted); letter-spacing:1px; }
-    .sel-item.on .si-name { color:var(--p); }
+        /* ── skill rows ── */
+        .skill-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+        .skill-row input[type="text"] {
+            flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; padding: 10px 12px; color: #E0E0FF;
+            font-family: 'Space Mono', monospace; font-size: 11px; outline: none;
+        }
+        .skill-row input[type="text"]:focus { border-color: var(--primary-color, #00CED1); }
+        .skill-row input[type="range"] { width: 90px; accent-color: var(--primary-color, #00CED1); }
+        .skill-pct { width: 34px; font-size: 11px; color: var(--primary-color, #00CED1); text-align: right; flex-shrink: 0; }
 
-    /* Theme swatches */
-    .theme-swatches { display:flex; gap:10px; flex-wrap:wrap; }
-    .swatch {
-      width:48px; height:48px; border-radius:50%; cursor:pointer;
-      border:3px solid transparent; transition:all .2s;
-    }
-    .swatch:hover { transform:scale(1.15); }
-    .swatch.on { border-color:#fff; box-shadow:0 0 16px rgba(255,255,255,.3); }
-    .color-custom-row { display:flex; gap:16px; margin-top:16px; align-items:center; }
-    .color-custom-row label { font-size:11px; color:var(--muted); }
-    input[type="color"] { width:36px; height:36px; border-radius:50%; border:2px solid var(--border); cursor:pointer; padding:2px; background:none; outline:none; }
+        /* ── range sliders ── */
+        .range-row { display: flex; align-items: center; gap: 12px; }
+        .range-row input[type="range"] { flex: 1; accent-color: var(--primary-color, #00CED1); }
+        .range-val { font-size: 11px; color: var(--primary-color, #00CED1); width: 36px; text-align: right; }
 
-    /* Badges grid */
-    .badge-grid { display:flex; flex-wrap:wrap; gap:8px; }
-    .badge-opt {
-      width:44px; height:44px; border-radius:10px; cursor:pointer;
-      border:2px solid var(--border); background:rgba(255,255,255,.03);
-      display:flex; align-items:center; justify-content:center;
-      font-size:22px; transition:all .2s; position:relative;
-    }
-    .badge-opt:hover { border-color:var(--p); transform:scale(1.1); }
-    .badge-opt.on { border-color:var(--p); background:rgba(0,206,209,.12); box-shadow:0 0 12px rgba(0,206,209,.25); }
-    .badge-opt .badge-tip { position:absolute; bottom:-22px; left:50%; transform:translateX(-50%); font-size:8px; color:var(--muted); white-space:nowrap; opacity:0; transition:opacity .2s; }
-    .badge-opt:hover .badge-tip { opacity:1; }
+        /* ── nav buttons ── */
+        .panel-nav { display: flex; gap: 12px; margin-top: 36px; align-items: center; }
+        .btn-next {
+            padding: 13px 32px; border-radius: 25px; border: none; cursor: pointer;
+            background: linear-gradient(135deg, var(--primary-color,#00CED1), var(--secondary-color,#FF6B9E));
+            color: #000; font-family: 'Space Mono', monospace; font-weight: 700;
+            font-size: 12px; letter-spacing: 2px; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-next:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,206,209,0.35); }
+        .btn-back {
+            padding: 12px 24px; border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.15); background: none;
+            color: rgba(224,224,255,0.5); font-family: 'Space Mono', monospace;
+            font-size: 12px; letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-back:hover { border-color: var(--primary-color,#00CED1); color: #E0E0FF; }
+        .btn-launch {
+            padding: 16px 52px; border-radius: 30px; border: none; cursor: pointer;
+            background: linear-gradient(135deg, var(--primary-color,#00CED1), var(--secondary-color,#FF6B9E));
+            color: #000; font-family: 'Orbitron', sans-serif; font-weight: 900;
+            font-size: 14px; letter-spacing: 3px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 0 40px rgba(0,206,209,0.2);
+        }
+        .btn-launch:hover { transform: translateY(-3px); box-shadow: 0 16px 50px rgba(0,206,209,0.5); }
 
-    /* Social rows */
-    .social-row { display:flex; gap:8px; margin-bottom:10px; }
-    .social-row select { width:120px; flex-shrink:0; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'Space Mono',monospace; font-size:11px; outline:none; }
-    .social-row input { flex:1; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'Space Mono',monospace; font-size:11px; outline:none; }
-    .social-row input:focus, .social-row select:focus { border-color:var(--p); }
-    .del-btn { width:38px; height:38px; border-radius:8px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-size:14px; transition:all .2s; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
-    .del-btn:hover { border-color:#EF4444; color:#EF4444; }
-    .add-row-btn { display:flex; align-items:center; gap:8px; padding:10px 16px; border:1px dashed var(--border); border-radius:8px; background:none; color:var(--muted); font-family:'Space Mono',monospace; font-size:11px; cursor:pointer; letter-spacing:1px; transition:all .2s; margin-top:4px; }
-    .add-row-btn:hover { border-color:var(--p); color:var(--text); }
+        /* ── launch overlay ── */
+        #launch-overlay {
+            display: none; position: fixed; inset: 0; z-index: 9999;
+            background: #0A0A1A;
+            flex-direction: column; align-items: center; justify-content: center;
+            gap: 20px;
+        }
+        #launch-overlay.show { display: flex; }
+        .launch-logo {
+            font-family: 'Orbitron', sans-serif; font-size: 56px; font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-color,#00CED1), var(--secondary-color,#FF6B9E));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: launchPulse 1s ease-in-out infinite;
+        }
+        @keyframes launchPulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+        .launch-sub { font-size: 12px; color: rgba(224,224,255,0.4); letter-spacing: 4px; }
+        .launch-bar { width: 220px; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+        .launch-fill { height: 100%; background: linear-gradient(90deg, var(--primary-color,#00CED1), var(--secondary-color,#FF6B9E)); animation: fillBar 1.8s ease-out forwards; }
+        @keyframes fillBar { from{width:0;} to{width:100%;} }
 
-    /* Skill rows */
-    .skill-edit { display:flex; gap:8px; margin-bottom:10px; align-items:center; }
-    .skill-edit input[type="text"] { flex:1; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'Space Mono',monospace; font-size:11px; outline:none; }
-    .skill-edit input[type="text"]:focus { border-color:var(--p); }
-    .skill-edit input[type="range"] { width:90px; accent-color:var(--p); }
-    .skill-pct { width:34px; font-size:11px; color:var(--p); text-align:right; flex-shrink:0; }
+        /* ── summary box ── */
+        .summary-box {
+            background: rgba(0,206,209,0.05);
+            border: 1px solid rgba(0,206,209,0.15);
+            border-radius: 14px; padding: 22px;
+            margin-bottom: 28px;
+        }
+        .summary-title { font-size: 10px; letter-spacing: 3px; color: rgba(224,224,255,0.35); margin-bottom: 14px; text-transform: uppercase; }
+        .summary-row { font-size: 12px; line-height: 2.2; color: #E0E0FF; }
+        .summary-row b { color: var(--primary-color,#00CED1); }
 
-    /* Range sliders */
-    .range-field { display:flex; align-items:center; gap:14px; }
-    .range-field input[type="range"] { flex:1; accent-color:var(--p); }
-    .range-val { font-size:11px; color:var(--p); width:36px; text-align:right; }
-
-    /* Step nav buttons */
-    .step-nav { display:flex; gap:12px; margin-top:36px; }
-    .btn-next { padding:12px 32px; border-radius:24px; border:none; cursor:pointer; background:linear-gradient(135deg,var(--p),var(--s)); color:#000; font-family:'Space Mono',monospace; font-weight:700; font-size:12px; letter-spacing:2px; transition:transform .2s,box-shadow .2s; }
-    .btn-next:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(0,206,209,.3); }
-    .btn-back { padding:12px 24px; border-radius:24px; border:1px solid var(--border); background:none; color:var(--muted); font-family:'Space Mono',monospace; font-size:12px; letter-spacing:1px; cursor:pointer; transition:all .2s; }
-    .btn-back:hover { border-color:var(--p); color:var(--text); }
-    .btn-launch { padding:16px 48px; border-radius:30px; border:none; cursor:pointer; background:linear-gradient(135deg,var(--p),var(--s)); color:#000; font-family:'Orbitron',sans-serif; font-weight:900; font-size:14px; letter-spacing:3px; transition:transform .2s,box-shadow .2s; }
-    .btn-launch:hover { transform:translateY(-3px); box-shadow:0 16px 50px rgba(0,206,209,.45); }
-
-    /* ── PREVIEW CARD ───────────────────────────────────────────── */
-    .preview-wrap { position:sticky; top:32px; }
-    .preview-label { font-size:9px; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:14px; text-align:center; }
-    .preview-card {
-      background:rgba(10,10,25,.9); border:1px solid var(--border);
-      border-radius:18px; padding:22px; backdrop-filter:blur(20px);
-      box-shadow:0 0 40px rgba(0,206,209,.1);
-    }
-    .pv-header { display:flex; gap:14px; align-items:flex-start; margin-bottom:16px; }
-    .pv-avatar { width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid var(--p); flex-shrink:0; background:#111; }
-    .pv-name { font-family:'Orbitron',sans-serif; font-size:15px; font-weight:900; color:var(--p); margin-bottom:6px; }
-    .pv-badges { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:6px; }
-    .pv-bio { font-size:10px; color:var(--muted); line-height:1.7; }
-    .pv-sep { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:12px 0; }
-    .pv-socials { display:flex; gap:6px; flex-wrap:wrap; }
-    .pv-social { padding:4px 10px; border-radius:12px; background:rgba(255,255,255,.05); font-size:10px; color:var(--muted); border:1px solid var(--border); }
-    .pv-skills { margin-top:12px; }
-    .pv-skill-row { margin-bottom:8px; }
-    .pv-skill-info { display:flex; justify-content:space-between; font-size:10px; margin-bottom:4px; }
-    .pv-bar { height:4px; background:rgba(255,255,255,.08); border-radius:2px; overflow:hidden; }
-    .pv-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--p),var(--s)); transition:width .8s ease; }
-    .pv-bg-preview { width:100%; height:80px; border-radius:10px; object-fit:cover; margin-top:14px; display:none; background:rgba(255,255,255,.04); }
-
-    /* ── LAUNCH SCREEN ──────────────────────────────────────────── */
-    #launch-screen {
-      display:none; position:fixed; inset:0; z-index:2000;
-      background:var(--bg); flex-direction:column;
-      align-items:center; justify-content:center; gap:20px;
-    }
-    #launch-screen.show { display:flex; }
-    .launch-logo { font-family:'Orbitron',sans-serif; font-size:56px; font-weight:900; background:linear-gradient(135deg,var(--p),var(--s)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:pulse 1s ease-in-out infinite; }
-    .launch-text { font-size:13px; color:var(--muted); letter-spacing:3px; }
-    .launch-bar { width:200px; height:3px; background:rgba(255,255,255,.08); border-radius:2px; overflow:hidden; }
-    .launch-fill { height:100%; background:linear-gradient(90deg,var(--p),var(--s)); animation:loadBar 1.8s ease-out forwards; }
-    @keyframes loadBar { from{width:0;} to{width:100%;} }
-    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.5;} }
-
-    @keyframes fadeUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
-  </style>
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,206,209,0.2); border-radius: 2px; }
+    </style>
 </head>
 <body>
-  <div id="c"></div>
-  <div id="cd"></div>
-  <div class="bg-grid"></div>
-  <div class="bg-glow"></div>
+    <div class="custom-cursor" id="cust-cursor"></div>
+    <div class="cust-bg"></div>
+    <div class="cust-grid-lines"></div>
 
-  <!-- ── LAUNCH OVERLAY ── -->
-  <div id="launch-screen">
-    <div class="launch-logo">VOID.BIO</div>
-    <div class="launch-text">BUILDING YOUR PROFILE...</div>
-    <div class="launch-bar"><div class="launch-fill"></div></div>
-  </div>
-
-  <!-- ════════════════════════════════════════════════════════
-       HERO SECTION
-  ════════════════════════════════════════════════════════ -->
-  <section id="hero">
-    <div class="hero-eyebrow">The guns.lol Killer — Free Forever</div>
-    <div class="hero-logo">VOID<span class="hero-dot"></span>BIO</div>
-    <p class="hero-sub">Build a profile page that actually slaps. Custom backgrounds, animated effects, music, badges — all free. No paywalls. No BS.</p>
-    <div class="hero-pills">
-      <span class="pill hot">✦ Custom BG Upload</span>
-      <span class="pill hot">✦ All Premium Free</span>
-      <span class="pill">Animated Avatars</span>
-      <span class="pill">Music Player</span>
-      <span class="pill">Cursor Effects</span>
-      <span class="pill">Skill Bars</span>
+    <!-- Launch overlay -->
+    <div id="launch-overlay">
+        <div class="launch-logo">VOID.BIO</div>
+        <div class="launch-sub">LOADING YOUR PROFILE...</div>
+        <div class="launch-bar"><div class="launch-fill"></div></div>
     </div>
-    <div class="hero-cta">
-      <button class="btn-main" onclick="scrollToEditor()">Start Building →</button>
-      <button class="btn-ghost" onclick="window.open('index.html','_blank')">View Demo</button>
-    </div>
-    <div class="scroll-hint">
-      <span>SCROLL</span>
-      <div class="scroll-arrow"></div>
-    </div>
-  </section>
 
-  <!-- ════════════════════════════════════════════════════════
-       FEATURES
-  ════════════════════════════════════════════════════════ -->
-  <section id="features">
-    <div class="section-label">What you get</div>
-    <h2 class="section-title">Everything. <span>For Free.</span></h2>
-    <div class="feat-grid">
-      <div class="feat-card">
-        <div class="feat-icon">🎨</div>
-        <div class="feat-name">Custom Backgrounds</div>
-        <div class="feat-desc">Upload your own image or video straight from your computer. Animated GIFs too. Or pick from 5 built-in video themes.</div>
-        <span class="feat-tag">PREMIUM FREE</span>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">✨</div>
-        <div class="feat-name">Cursor Effects</div>
-        <div class="feat-desc">Sparkle trails, fire, matrix rain, snowflakes, hearts. Your cursor becomes part of the vibe.</div>
-        <span class="feat-tag">PREMIUM FREE</span>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">🎵</div>
-        <div class="feat-name">Background Music</div>
-        <div class="feat-desc">Add any music via URL. Visitors hear your vibe the second they click enter. Audio visualizer included.</div>
-        <span class="feat-tag">PREMIUM FREE</span>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">🏅</div>
-        <div class="feat-name">18 Badges</div>
-        <div class="feat-desc">Pick from Owner, Staff, Premium, OG, Verified, Bug Hunter and 12 more. All unlocked, no grinding required.</div>
-        <span class="feat-tag">ALL UNLOCKED</span>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">📊</div>
-        <div class="feat-name">Skill Bars</div>
-        <div class="feat-desc">Animated progress bars for your skills. Add as many as you want with custom names and percentages.</div>
-        <span class="feat-tag">UNLIMITED</span>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">🔗</div>
-        <div class="feat-name">Social Links</div>
-        <div class="feat-desc">Discord, GitHub, YouTube, TikTok, Twitch, Steam, Spotify and more. Custom URLs, no restrictions.</div>
-        <span class="feat-tag">10 PLATFORMS</span>
-      </div>
-    </div>
-  </section>
+    <div class="cust-wrap">
 
-  <!-- ════════════════════════════════════════════════════════
-       EDITOR
-  ════════════════════════════════════════════════════════ -->
-  <section id="editor">
-    <div class="section-label">Profile Builder</div>
-    <h2 class="section-title" style="margin-bottom:48px;">Make It <span>Yours</span></h2>
+        <!-- HERO -->
+        <div class="cust-hero">
+            <div class="eyebrow">Profile Builder — Free Forever</div>
+            <h1>VOID.BIO</h1>
+            <p>Customize everything. Custom backgrounds, animated avatars, badges, music, cursor effects — all free. No paywalls.</p>
+            <div class="hero-tags">
+                <span class="hero-tag">✦ Custom BG Upload</span>
+                <span class="hero-tag">✦ All Premium Free</span>
+                <span class="hero-tag">GIF Avatars</span>
+                <span class="hero-tag">Music Player</span>
+                <span class="hero-tag">Cursor Effects</span>
+            </div>
+        </div>
 
-    <div class="editor-layout">
-
-      <!-- LEFT: Steps -->
-      <div>
-        <!-- Step nav -->
-        <div class="steps-nav">
-          <button class="step-btn active" id="snav-1" onclick="goStep(1)"><span class="step-num">1</span> Identity</button>
-          <button class="step-btn" id="snav-2" onclick="goStep(2)"><span class="step-num">2</span> Avatar & Background</button>
-          <button class="step-btn" id="snav-3" onclick="goStep(3)"><span class="step-num">3</span> Style & Theme</button>
-          <button class="step-btn" id="snav-4" onclick="goStep(4)"><span class="step-num">4</span> Badges & Socials</button>
-          <button class="step-btn" id="snav-5" onclick="goStep(5)"><span class="step-num">5</span> Skills & Music</button>
-          <button class="step-btn" id="snav-6" onclick="goStep(6)"><span class="step-num">6</span> Launch</button>
+        <!-- STEP INDICATOR -->
+        <div class="step-indicator">
+            <div class="si-step active" id="si-1" onclick="goStep(1)"><div class="si-dot">1</div><div class="si-label">Identity</div></div>
+            <div class="si-line"></div>
+            <div class="si-step" id="si-2" onclick="goStep(2)"><div class="si-dot">2</div><div class="si-label">Avatar & BG</div></div>
+            <div class="si-line"></div>
+            <div class="si-step" id="si-3" onclick="goStep(3)"><div class="si-dot">3</div><div class="si-label">Style</div></div>
+            <div class="si-line"></div>
+            <div class="si-step" id="si-4" onclick="goStep(4)"><div class="si-dot">4</div><div class="si-label">Badges & Links</div></div>
+            <div class="si-line"></div>
+            <div class="si-step" id="si-5" onclick="goStep(5)"><div class="si-dot">5</div><div class="si-label">Skills & Music</div></div>
+            <div class="si-line"></div>
+            <div class="si-step" id="si-6" onclick="goStep(6)"><div class="si-dot">6</div><div class="si-label">Launch 🚀</div></div>
         </div>
 
         <!-- ── STEP 1: Identity ── -->
-        <div class="step-panel active" id="step-1">
-          <div class="panel-title">Who are you?</div>
-          <p class="panel-sub">Set your name and bio. This is what people see first.</p>
-          <div class="field">
-            <label>Display Name</label>
-            <input type="text" id="f-name" placeholder="YOUR_NAME" maxlength="28" oninput="S.name=this.value;updatePreview();">
-          </div>
-          <div class="field">
-            <label>Bio <span id="bio-cc" style="float:right;font-size:10px;color:var(--muted);">0/120</span></label>
-            <textarea id="f-bio" rows="3" placeholder="// say something..." maxlength="120" oninput="S.bio=this.value;document.getElementById('bio-cc').textContent=this.value.length+'/120';updatePreview();"></textarea>
-          </div>
-          <div class="field">
-            <label>Name Animation</label>
-            <div class="sel-grid cols3">
-              <div class="sel-item on" data-anim="typewriter" onclick="pickSel(this,'anim')"><div class="si-icon">⌨️</div><div class="si-name">TYPEWRITER</div></div>
-              <div class="sel-item" data-anim="glitch" onclick="pickSel(this,'anim')"><div class="si-icon">📺</div><div class="si-name">GLITCH</div></div>
-              <div class="sel-item" data-anim="wave" onclick="pickSel(this,'anim')"><div class="si-icon">🌊</div><div class="si-name">WAVE</div></div>
-              <div class="sel-item" data-anim="neon" onclick="pickSel(this,'anim')"><div class="si-icon">💡</div><div class="si-name">NEON</div></div>
-              <div class="sel-item" data-anim="matrix" onclick="pickSel(this,'anim')"><div class="si-icon">🟩</div><div class="si-name">MATRIX</div></div>
-              <div class="sel-item" data-anim="fade" onclick="pickSel(this,'anim')"><div class="si-icon">🌫️</div><div class="si-name">FADE</div></div>
+        <div class="panel active" id="panel-1">
+            <div class="panel-title">Who are you?</div>
+            <p class="panel-sub">Set your name and bio. Keep it real.</p>
+            <div class="field">
+                <label>Display Name</label>
+                <input type="text" id="f-name" placeholder="YOUR_NAME" maxlength="28" oninput="S.name=this.value;">
             </div>
-          </div>
-          <div class="step-nav">
-            <button class="btn-next" onclick="nextStep(1)">Next →</button>
-          </div>
+            <div class="field">
+                <label>Bio <span id="bio-cc" style="float:right;">0/120</span></label>
+                <textarea id="f-bio" rows="3" placeholder="// say something..." maxlength="120" oninput="S.bio=this.value;document.getElementById('bio-cc').textContent=this.value.length+'/120';"></textarea>
+            </div>
+            <div class="field">
+                <label>Name Animation Style</label>
+                <div class="three-col">
+                    <div class="sel-tile on" data-anim="typewriter" onclick="pick(this,'anim')"><div class="tile-icon">⌨️</div><div class="tile-name">TYPEWRITER</div></div>
+                    <div class="sel-tile" data-anim="glitch" onclick="pick(this,'anim')"><div class="tile-icon">📺</div><div class="tile-name">GLITCH</div></div>
+                    <div class="sel-tile" data-anim="wave" onclick="pick(this,'anim')"><div class="tile-icon">🌊</div><div class="tile-name">WAVE</div></div>
+                    <div class="sel-tile" data-anim="neon" onclick="pick(this,'anim')"><div class="tile-icon">💡</div><div class="tile-name">NEON PULSE</div></div>
+                    <div class="sel-tile" data-anim="matrix" onclick="pick(this,'anim')"><div class="tile-icon">🟩</div><div class="tile-name">MATRIX</div></div>
+                    <div class="sel-tile" data-anim="fade" onclick="pick(this,'anim')"><div class="tile-icon">🌫️</div><div class="tile-name">FADE</div></div>
+                </div>
+            </div>
+            <div class="field">
+                <label>Start Screen Text</label>
+                <input type="text" id="f-start" placeholder="— CLICK TO ENTER —" maxlength="40" oninput="S.startText=this.value;">
+            </div>
+            <div class="panel-nav">
+                <button class="btn-next" onclick="next(1)">Next →</button>
+            </div>
         </div>
 
         <!-- ── STEP 2: Avatar & Background ── -->
-        <div class="step-panel" id="step-2">
-          <div class="panel-title">Avatar & Background</div>
-          <p class="panel-sub">Upload your avatar and set the background vibe.</p>
+        <div class="panel" id="panel-2">
+            <div class="panel-title">Avatar & Background</div>
+            <p class="panel-sub">Upload your pics and set the vibe.</p>
 
-          <div class="field">
-            <label>Profile Picture</label>
-            <div class="avatar-row">
-              <img id="pv-avatar-big" class="avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a" alt="">
-              <div class="upload-zone" id="av-zone">
-                <input type="file" accept="image/*" onchange="handleAvatar(event)">
-                <div class="uz-icon">📸</div>
-                <div class="uz-text">Click to upload</div>
-                <div class="uz-hint">PNG · JPG · GIF (animated ok!)</div>
-              </div>
+            <div class="field">
+                <label>Profile Picture</label>
+                <div class="avatar-upload-row">
+                    <img id="av-preview" class="av-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a" alt="">
+                    <div class="upload-zone" id="av-zone">
+                        <input type="file" accept="image/*" onchange="handleAvatar(event)">
+                        <div class="uz-icon">📸</div>
+                        <div class="uz-text">Click to upload from your computer</div>
+                        <div class="uz-hint">PNG · JPG · GIF (animated!) · WEBP</div>
+                    </div>
+                </div>
+                <div style="margin-top:12px;">
+                    <div class="field-hint" style="margin-bottom:6px;">Or paste a URL instead:</div>
+                    <input type="url" id="f-av-url" placeholder="https://..." style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;color:#E0E0FF;font-family:'Space Mono',monospace;font-size:12px;outline:none;" oninput="S.avatar=this.value;S.avatarData=null;document.getElementById('av-preview').src=this.value;">
+                </div>
             </div>
-            <div class="field-hint" style="margin-top:10px;">Or paste a URL:</div>
-            <input type="url" id="f-avatar-url" placeholder="https://..." style="margin-top:6px;width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:12px;outline:none;" oninput="S.avatar=this.value;S.avatarData=null;updateAvatarPreview();">
-          </div>
 
-          <div class="field">
-            <label>Background</label>
-            <div class="upload-zone" id="bg-zone">
-              <input type="file" accept="image/*,video/*" onchange="handleBg(event)">
-              <div class="uz-icon">🌅</div>
-              <div class="uz-text">Upload image or video</div>
-              <div class="uz-hint">JPG · PNG · GIF · MP4 · WEBM — anything works</div>
+            <div class="field" style="margin-top:8px;">
+                <label>Background — Upload Image or Video</label>
+                <div class="upload-zone" id="bg-zone">
+                    <input type="file" accept="image/*,video/*" onchange="handleBg(event)">
+                    <div class="uz-icon">🌅</div>
+                    <div class="uz-text">Click to upload from your computer</div>
+                    <div class="uz-hint">JPG · PNG · GIF · MP4 · WEBM — anything works</div>
+                </div>
+                <img id="bg-img-preview" style="width:100%;height:80px;object-fit:cover;border-radius:10px;margin-top:10px;display:none;" alt="">
             </div>
-          </div>
 
-          <div class="field">
-            <label>Or choose a built-in theme</label>
-            <div class="sel-grid cols3">
-              <div class="sel-item on" data-bg="default" onclick="pickSel(this,'bg')"><div class="si-icon">🌀</div><div class="si-name">DEFAULT</div></div>
-              <div class="sel-item" data-bg="hacker" onclick="pickSel(this,'bg')"><div class="si-icon">💻</div><div class="si-name">HACKER</div></div>
-              <div class="sel-item" data-bg="rain" onclick="pickSel(this,'bg')"><div class="si-icon">🌧️</div><div class="si-name">RAIN</div></div>
-              <div class="sel-item" data-bg="anime" onclick="pickSel(this,'bg')"><div class="si-icon">⚔️</div><div class="si-name">ANIME</div></div>
-              <div class="sel-item" data-bg="gold" onclick="pickSel(this,'bg')"><div class="si-icon">🏎️</div><div class="si-name">GOLD</div></div>
-              <div class="sel-item" data-bg="none" onclick="pickSel(this,'bg')"><div class="si-icon">⬛</div><div class="si-name">NONE</div></div>
+            <div class="field">
+                <label>Or use a built-in background</label>
+                <div class="three-col">
+                    <div class="sel-tile on" data-bg="default" onclick="pick(this,'bg')"><div class="tile-icon">🌀</div><div class="tile-name">DEFAULT</div></div>
+                    <div class="sel-tile" data-bg="hacker" onclick="pick(this,'bg')"><div class="tile-icon">💻</div><div class="tile-name">HACKER</div></div>
+                    <div class="sel-tile" data-bg="rain" onclick="pick(this,'bg')"><div class="tile-icon">🌧️</div><div class="tile-name">RAIN</div></div>
+                    <div class="sel-tile" data-bg="anime" onclick="pick(this,'bg')"><div class="tile-icon">⚔️</div><div class="tile-name">ANIME</div></div>
+                    <div class="sel-tile" data-bg="gold" onclick="pick(this,'bg')"><div class="tile-icon">🏎️</div><div class="tile-name">GOLD</div></div>
+                    <div class="sel-tile" data-bg="none" onclick="pick(this,'bg')"><div class="tile-icon">⬛</div><div class="tile-name">DARK</div></div>
+                </div>
             </div>
-          </div>
 
-          <div class="step-nav">
-            <button class="btn-back" onclick="goStep(1)">← Back</button>
-            <button class="btn-next" onclick="nextStep(2)">Next →</button>
-          </div>
+            <div class="panel-nav">
+                <button class="btn-back" onclick="goStep(1)">← Back</button>
+                <button class="btn-next" onclick="next(2)">Next →</button>
+            </div>
         </div>
 
         <!-- ── STEP 3: Style & Theme ── -->
-        <div class="step-panel" id="step-3">
-          <div class="panel-title">Style & Theme</div>
-          <p class="panel-sub">Pick your colors, font, and cursor effect.</p>
+        <div class="panel" id="panel-3">
+            <div class="panel-title">Style & Theme</div>
+            <p class="panel-sub">Colors, cursor, and vibe.</p>
 
-          <div class="field">
-            <label>Color Theme</label>
-            <div class="theme-swatches">
-              <div class="swatch on" data-theme="default" style="background:linear-gradient(135deg,#00CED1,#FF6B9E);" onclick="pickTheme(this)" title="Void"></div>
-              <div class="swatch" data-theme="hacker"  style="background:linear-gradient(135deg,#22C55E,#2DD4BF);" onclick="pickTheme(this)" title="Hacker"></div>
-              <div class="swatch" data-theme="rain"    style="background:linear-gradient(135deg,#3B82F6,#6366F1);" onclick="pickTheme(this)" title="Rain"></div>
-              <div class="swatch" data-theme="anime"   style="background:linear-gradient(135deg,#EF4444,#F97316);" onclick="pickTheme(this)" title="Anime"></div>
-              <div class="swatch" data-theme="gold"    style="background:linear-gradient(135deg,#EAB308,#FACC15);" onclick="pickTheme(this)" title="Gold"></div>
-              <div class="swatch" data-theme="void2"   style="background:linear-gradient(135deg,#8B5CF6,#EC4899);" onclick="pickTheme(this)" title="Void II"></div>
-              <div class="swatch" data-theme="ice"     style="background:linear-gradient(135deg,#BAE6FD,#60A5FA);" onclick="pickTheme(this)" title="Ice"></div>
-              <div class="swatch" data-theme="blood"   style="background:linear-gradient(135deg,#7F1D1D,#EF4444);" onclick="pickTheme(this)" title="Blood"></div>
+            <div class="field">
+                <label>Color Theme</label>
+                <div class="swatches">
+                    <div class="swatch on" data-theme="default" style="background:linear-gradient(135deg,#00CED1,#FF6B9E);" onclick="pickTheme(this)" title="Void"></div>
+                    <div class="swatch" data-theme="hacker"  style="background:linear-gradient(135deg,#22C55E,#2DD4BF);" onclick="pickTheme(this)" title="Hacker"></div>
+                    <div class="swatch" data-theme="rain"    style="background:linear-gradient(135deg,#3B82F6,#6366F1);" onclick="pickTheme(this)" title="Rain"></div>
+                    <div class="swatch" data-theme="anime"   style="background:linear-gradient(135deg,#EF4444,#F97316);" onclick="pickTheme(this)" title="Anime"></div>
+                    <div class="swatch" data-theme="gold"    style="background:linear-gradient(135deg,#EAB308,#FACC15);" onclick="pickTheme(this)" title="Gold"></div>
+                    <div class="swatch" data-theme="void2"   style="background:linear-gradient(135deg,#8B5CF6,#EC4899);" onclick="pickTheme(this)" title="Void II"></div>
+                    <div class="swatch" data-theme="ice"     style="background:linear-gradient(135deg,#BAE6FD,#60A5FA);" onclick="pickTheme(this)" title="Ice"></div>
+                    <div class="swatch" data-theme="blood"   style="background:linear-gradient(135deg,#7F1D1D,#EF4444);" onclick="pickTheme(this)" title="Blood"></div>
+                </div>
+                <div class="custom-colors">
+                    <label>Custom:</label>
+                    <div><label style="font-size:9px;display:block;margin-bottom:4px;">Primary</label>
+                        <input type="color" id="cp-primary" value="#00CED1" oninput="S.primaryColor=this.value;applyColors();"></div>
+                    <div><label style="font-size:9px;display:block;margin-bottom:4px;">Secondary</label>
+                        <input type="color" id="cp-secondary" value="#FF6B9E" oninput="S.secondaryColor=this.value;applyColors();"></div>
+                </div>
             </div>
-            <div class="color-custom-row">
-              <label>Custom:</label>
-              <div><label style="font-size:9px;display:block;margin-bottom:4px;">Primary</label><input type="color" value="#00CED1" oninput="S.primaryColor=this.value;applyColors();"></div>
-              <div><label style="font-size:9px;display:block;margin-bottom:4px;">Secondary</label><input type="color" value="#FF6B9E" oninput="S.secondaryColor=this.value;applyColors();"></div>
-            </div>
-          </div>
 
-          <div class="field">
-            <label>Cursor Effect</label>
-            <div class="sel-grid cols3">
-              <div class="sel-item on" data-cursor="default" onclick="pickSel(this,'cursor')"><div class="si-icon">🎯</div><div class="si-name">DEFAULT</div></div>
-              <div class="sel-item" data-cursor="sparkle" onclick="pickSel(this,'cursor')"><div class="si-icon">✨</div><div class="si-name">SPARKLE</div></div>
-              <div class="sel-item" data-cursor="fire" onclick="pickSel(this,'cursor')"><div class="si-icon">🔥</div><div class="si-name">FIRE</div></div>
-              <div class="sel-item" data-cursor="snow" onclick="pickSel(this,'cursor')"><div class="si-icon">❄️</div><div class="si-name">SNOW</div></div>
-              <div class="sel-item" data-cursor="hearts" onclick="pickSel(this,'cursor')"><div class="si-icon">💜</div><div class="si-name">HEARTS</div></div>
-              <div class="sel-item" data-cursor="matrix" onclick="pickSel(this,'cursor')"><div class="si-icon">🟩</div><div class="si-name">MATRIX</div></div>
+            <div class="field">
+                <label>Cursor Effect</label>
+                <div class="three-col">
+                    <div class="sel-tile on" data-cursor="default" onclick="pick(this,'cursor')"><div class="tile-icon">🎯</div><div class="tile-name">DEFAULT</div></div>
+                    <div class="sel-tile" data-cursor="sparkle" onclick="pick(this,'cursor')"><div class="tile-icon">✨</div><div class="tile-name">SPARKLE</div></div>
+                    <div class="sel-tile" data-cursor="fire" onclick="pick(this,'cursor')"><div class="tile-icon">🔥</div><div class="tile-name">FIRE</div></div>
+                    <div class="sel-tile" data-cursor="snow" onclick="pick(this,'cursor')"><div class="tile-icon">❄️</div><div class="tile-name">SNOW</div></div>
+                    <div class="sel-tile" data-cursor="hearts" onclick="pick(this,'cursor')"><div class="tile-icon">💜</div><div class="tile-name">HEARTS</div></div>
+                    <div class="sel-tile" data-cursor="matrix" onclick="pick(this,'cursor')"><div class="tile-icon">🟩</div><div class="tile-name">MATRIX</div></div>
+                </div>
             </div>
-          </div>
 
-          <div class="field">
-            <label>Card Glow Intensity</label>
-            <div class="range-field">
-              <input type="range" min="0" max="100" value="30" oninput="S.glowIntensity=this.value;document.getElementById('rv-glow').textContent=this.value+'%';">
-              <span class="range-val" id="rv-glow">30%</span>
+            <div class="panel-nav">
+                <button class="btn-back" onclick="goStep(2)">← Back</button>
+                <button class="btn-next" onclick="next(3)">Next →</button>
             </div>
-          </div>
-
-          <div class="step-nav">
-            <button class="btn-back" onclick="goStep(2)">← Back</button>
-            <button class="btn-next" onclick="nextStep(3)">Next →</button>
-          </div>
         </div>
 
         <!-- ── STEP 4: Badges & Socials ── -->
-        <div class="step-panel" id="step-4">
-          <div class="panel-title">Badges & Links</div>
-          <p class="panel-sub">Pick your badges and add your social links.</p>
+        <div class="panel" id="panel-4">
+            <div class="panel-title">Badges & Links</div>
+            <p class="panel-sub">Pick your badges. Add your socials.</p>
 
-          <div class="field">
-            <label>Badges — click to toggle</label>
-            <div class="badge-grid" id="badge-picker"></div>
-          </div>
+            <div class="field">
+                <label>Badges — click to toggle on/off</label>
+                <div class="badge-picker" id="badge-picker"></div>
+            </div>
 
-          <div class="field" style="margin-top:28px;">
-            <label>Social Links</label>
-            <div id="social-editor"></div>
-            <button class="add-row-btn" onclick="addSocial()">+ Add Link</button>
-          </div>
+            <div class="field" style="margin-top:28px;">
+                <label>Social Links</label>
+                <div id="social-editor"></div>
+                <button class="add-row-btn" onclick="addSocial()">+ Add Link</button>
+            </div>
 
-          <div class="step-nav">
-            <button class="btn-back" onclick="goStep(3)">← Back</button>
-            <button class="btn-next" onclick="nextStep(4)">Next →</button>
-          </div>
+            <div class="panel-nav">
+                <button class="btn-back" onclick="goStep(3)">← Back</button>
+                <button class="btn-next" onclick="next(4)">Next →</button>
+            </div>
         </div>
 
         <!-- ── STEP 5: Skills & Music ── -->
-        <div class="step-panel" id="step-5">
-          <div class="panel-title">Skills & Music</div>
-          <p class="panel-sub">Show off your skills and add a vibe soundtrack.</p>
+        <div class="panel" id="panel-5">
+            <div class="panel-title">Skills & Music</div>
+            <p class="panel-sub">Flex your skills. Set the soundtrack.</p>
 
-          <div class="field">
-            <label>Skills</label>
-            <div id="skills-editor"></div>
-            <button class="add-row-btn" onclick="addSkill()">+ Add Skill</button>
-          </div>
+            <div class="field">
+                <label>Skills (name + percentage)</label>
+                <div id="skills-editor"></div>
+                <button class="add-row-btn" onclick="addSkill()">+ Add Skill</button>
+            </div>
 
-          <div class="field" style="margin-top:28px;">
-            <label>Background Music URL</label>
-            <input type="url" id="f-music" placeholder="https://example.com/song.mp3" oninput="S.musicUrl=this.value;">
-            <div class="field-hint">Direct MP3/OGG/WAV link. Free host: archive.org</div>
-          </div>
+            <div class="field" style="margin-top:28px;">
+                <label>Background Music (direct MP3/OGG URL)</label>
+                <input type="url" id="f-music" placeholder="https://example.com/song.mp3" oninput="S.musicUrl=this.value;">
+                <div class="field-hint">Needs a direct audio link. Try archive.org for free hosting.</div>
+            </div>
 
-          <div class="field">
-            <label>Start Screen Text</label>
-            <input type="text" id="f-start" placeholder="— CLICK TO ENTER —" maxlength="40" oninput="S.startText=this.value;">
-          </div>
-
-          <div class="step-nav">
-            <button class="btn-back" onclick="goStep(4)">← Back</button>
-            <button class="btn-next" onclick="nextStep(5)">Next →</button>
-          </div>
+            <div class="panel-nav">
+                <button class="btn-back" onclick="goStep(4)">← Back</button>
+                <button class="btn-next" onclick="next(5)">Next →</button>
+            </div>
         </div>
 
         <!-- ── STEP 6: Launch ── -->
-        <div class="step-panel" id="step-6">
-          <div class="panel-title">Ready to Launch 🚀</div>
-          <p class="panel-sub">Your profile is set up. Hit the button and your customizations save — then you'll land on your live profile page.</p>
+        <div class="panel" id="panel-6">
+            <div class="panel-title">Ready. Let's Go. 🚀</div>
+            <p class="panel-sub">Everything's set. Hit launch and your profile goes live with all your customizations.</p>
 
-          <div style="background:rgba(0,206,209,.06);border:1px solid rgba(0,206,209,.2);border-radius:14px;padding:22px;margin-bottom:28px;">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:2px;">SUMMARY</div>
-            <div id="launch-summary" style="font-size:12px;line-height:2;color:var(--text);"></div>
-          </div>
-
-          <div class="step-nav" style="justify-content:center;">
-            <button class="btn-launch" onclick="launch()">✦ LAUNCH MY PROFILE ✦</button>
-          </div>
-          <div style="text-align:center;margin-top:16px;font-size:10px;color:var(--muted);letter-spacing:2px;">Saves to your browser → opens your profile</div>
-        </div>
-
-      </div><!-- /left -->
-
-      <!-- RIGHT: Live preview -->
-      <div class="preview-wrap">
-        <div class="preview-label">⚡ live preview</div>
-        <div class="preview-card">
-          <div class="pv-header">
-            <img id="pv-avatar" class="pv-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a" alt="">
-            <div style="flex:1;min-width:0;">
-              <div class="pv-name" id="pv-name">VOID_USER</div>
-              <div class="pv-badges" id="pv-badges"></div>
-              <div class="pv-bio" id="pv-bio">// your bio here</div>
+            <div class="summary-box">
+                <div class="summary-title">Your Profile Summary</div>
+                <div class="summary-row" id="summary-rows"></div>
             </div>
-          </div>
-          <div class="pv-sep"></div>
-          <div class="pv-socials" id="pv-socials">
-            <span class="pv-social">💬 Discord</span>
-            <span class="pv-social">⬡ GitHub</span>
-          </div>
-          <div class="pv-skills" id="pv-skills"></div>
-          <img id="pv-bg" class="pv-bg-preview" alt="background preview">
+
+            <div style="text-align:center;">
+                <button class="btn-launch" onclick="launch()">✦ LAUNCH MY PROFILE ✦</button>
+                <div style="margin-top:12px;font-size:10px;color:rgba(224,224,255,0.3);letter-spacing:2px;">
+                    Saves to browser → opens index.html
+                </div>
+            </div>
+
+            <div class="panel-nav" style="justify-content:center;">
+                <button class="btn-back" onclick="goStep(5)">← Back</button>
+            </div>
         </div>
-      </div>
 
-    </div><!-- /editor-layout -->
-  </section>
+    </div><!-- /cust-wrap -->
 
-  <script>
-  // ── CURSOR ─────────────────────────────────────────────────────────────────
-  const cur=document.getElementById('c'),dot=document.getElementById('cd');
-  let mx=0,my=0,cx=0,cy=0;
-  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
-  (function loop(){cx+=(mx-cx)*.14;cy+=(my-cy)*.14;cur.style.left=cx+'px';cur.style.top=cy+'px';requestAnimationFrame(loop);})();
-  document.addEventListener('mousedown',()=>{cur.style.width='10px';cur.style.height='10px';});
-  document.addEventListener('mouseup',()=>{cur.style.width='18px';cur.style.height='18px';});
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+    // ── CURSOR ──────────────────────────────────────────────────────────────
+    const cursor = document.getElementById('cust-cursor');
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+    if (!isTouchDevice) {
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top  = e.clientY + 'px';
+            cursor.style.display = 'block';
+        });
+    }
 
-  // ── STATE ──────────────────────────────────────────────────────────────────
-  const THEMES_MAP = {
-    default:{p:'#00CED1',s:'#FF6B9E'},
-    hacker: {p:'#22C55E',s:'#2DD4BF'},
-    rain:   {p:'#3B82F6',s:'#6366F1'},
-    anime:  {p:'#EF4444',s:'#F97316'},
-    gold:   {p:'#EAB308',s:'#FACC15'},
-    void2:  {p:'#8B5CF6',s:'#EC4899'},
-    ice:    {p:'#BAE6FD',s:'#60A5FA'},
-    blood:  {p:'#7F1D1D',s:'#EF4444'},
-  };
-  const ICONS_MAP = {Discord:'💬',GitHub:'⬡',YouTube:'▶',TikTok:'♪','Twitter/X':'✕',Instagram:'📷',Twitch:'🟣',Steam:'🎮',Spotify:'🎵',Website:'🌐'};
-  const ALL_BADGES = [
-    {e:'⚡',t:'Owner'},{e:'🛡',t:'Staff'},{e:'💎',t:'Premium'},{e:'🔥',t:'OG'},
-    {e:'✓',t:'Verified'},{e:'🐛',t:'Bug Hunter'},{e:'👑',t:'Admin'},{e:'🎖',t:'Veteran'},
-    {e:'🌟',t:'Star'},{e:'💀',t:'Banned Others'},{e:'🧠',t:'Big Brain'},{e:'🎮',t:'Gamer'},
-    {e:'🎨',t:'Artist'},{e:'⚔️',t:'Fighter'},{e:'🏆',t:'Champion'},{e:'🦊',t:'Fox Mode'},
-    {e:'😈',t:'Evil'},{e:'🤡',t:'Clown'},
-  ];
-
-  let S = {
-    name:'', bio:'', avatar:'https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a',
-    avatarData:null, bgImage:null, bgTheme:'default',
-    theme:'default', primaryColor:'#00CED1', secondaryColor:'#FF6B9E',
-    nameAnim:'typewriter', cursorEffect:'default', glowIntensity:30,
-    activeBadges:['⚡','🛡','💎'],
-    socials:[{platform:'Discord',href:''},{platform:'GitHub',href:''}],
-    skills:[{name:'Python',pct:87},{name:'C++',pct:75}],
-    musicUrl:'', startText:'— CLICK TO ENTER —',
-  };
-
-  // ── STEPS ──────────────────────────────────────────────────────────────────
-  let currentStep = 1;
-  function goStep(n) {
-    document.querySelectorAll('.step-panel').forEach((p,i)=>p.classList.toggle('active',i+1===n));
-    document.querySelectorAll('.step-btn').forEach((b,i)=>{
-      b.classList.toggle('active',i+1===n);
-      if(i+1<n) b.classList.add('done'); else b.classList.remove('done');
-    });
-    currentStep = n;
-    if(n===6) buildSummary();
-  }
-  function nextStep(n) { goStep(n+1); document.getElementById('editor').scrollIntoView({behavior:'smooth'}); }
-  function scrollToEditor() { document.getElementById('editor').scrollIntoView({behavior:'smooth'}); }
-
-  // ── SELECTORS ──────────────────────────────────────────────────────────────
-  function pickSel(el, group) {
-    el.closest('.sel-grid').querySelectorAll('.sel-item').forEach(e=>e.classList.remove('on'));
-    el.classList.add('on');
-    if(group==='anim')   S.nameAnim      = el.dataset.anim;
-    if(group==='cursor') S.cursorEffect  = el.dataset.cursor;
-    if(group==='bg')   { S.bgTheme = el.dataset.bg; S.bgImage = null; }
-  }
-
-  function pickTheme(el) {
-    document.querySelectorAll('.swatch').forEach(e=>e.classList.remove('on'));
-    el.classList.add('on');
-    S.theme = el.dataset.theme;
-    const t = THEMES_MAP[S.theme]||THEMES_MAP.default;
-    S.primaryColor = t.p; S.secondaryColor = t.s;
-    applyColors();
-  }
-
-  function applyColors() {
-    document.documentElement.style.setProperty('--p', S.primaryColor);
-    document.documentElement.style.setProperty('--s', S.secondaryColor);
-    document.documentElement.style.setProperty('--border', S.primaryColor+'33');
-  }
-
-  // ── AVATAR ─────────────────────────────────────────────────────────────────
-  function handleAvatar(e) {
-    const file = e.target.files[0]; if(!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      S.avatarData = ev.target.result;
-      S.avatar = null;
-      updateAvatarPreview();
-      document.getElementById('av-zone').classList.add('has-file');
+    // ── THEMES MAP ───────────────────────────────────────────────────────────
+    const THEMES_MAP = {
+        default:{p:'#00CED1',s:'#FF6B9E'},
+        hacker: {p:'#22C55E',s:'#2DD4BF'},
+        rain:   {p:'#3B82F6',s:'#6366F1'},
+        anime:  {p:'#EF4444',s:'#F97316'},
+        gold:   {p:'#EAB308',s:'#FACC15'},
+        void2:  {p:'#8B5CF6',s:'#EC4899'},
+        ice:    {p:'#BAE6FD',s:'#60A5FA'},
+        blood:  {p:'#7F1D1D',s:'#EF4444'},
     };
-    reader.readAsDataURL(file);
-  }
-  function updateAvatarPreview() {
-    const src = S.avatarData || S.avatar || '';
-    document.getElementById('pv-avatar').src = src;
-    document.getElementById('pv-avatar-big').src = src;
-  }
+    const ALL_BADGES = [
+        {e:'⚡',t:'Owner'},{e:'🛡',t:'Staff'},{e:'💎',t:'Premium'},{e:'🔥',t:'OG'},
+        {e:'✓',t:'Verified'},{e:'🐛',t:'Bug Hunter'},{e:'👑',t:'Admin'},{e:'🎖',t:'Veteran'},
+        {e:'🌟',t:'Star'},{e:'💀',t:'Banned Others'},{e:'🧠',t:'Big Brain'},{e:'🎮',t:'Gamer'},
+        {e:'🎨',t:'Artist'},{e:'⚔️',t:'Fighter'},{e:'🏆',t:'Champion'},{e:'🦊',t:'Fox Mode'},
+        {e:'😈',t:'Evil'},{e:'🤡',t:'Clown'},
+    ];
+    const PLATS = ['Discord','GitHub','YouTube','TikTok','Twitter/X','Instagram','Twitch','Steam','Spotify','Website'];
 
-  // ── BACKGROUND ─────────────────────────────────────────────────────────────
-  function handleBg(e) {
-    const file = e.target.files[0]; if(!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      S.bgImage = ev.target.result;
-      S.bgTheme = null;
-      // deselect built-in
-      document.querySelectorAll('[data-bg]').forEach(el=>el.classList.remove('on'));
-      // show preview
-      const pv = document.getElementById('pv-bg');
-      if(file.type.startsWith('video/')) {
-        pv.style.display='none';
-      } else {
-        pv.src = ev.target.result; pv.style.display='block';
-      }
-      document.getElementById('bg-zone').classList.add('has-file');
-    };
-    reader.readAsDataURL(file);
-  }
-
-  // ── BADGES ─────────────────────────────────────────────────────────────────
-  function buildBadgePicker() {
-    const cont = document.getElementById('badge-picker');
-    cont.innerHTML = '';
-    ALL_BADGES.forEach(b => {
-      const el = document.createElement('div');
-      el.className = 'badge-opt' + (S.activeBadges.includes(b.e) ? ' on' : '');
-      el.innerHTML = `${b.e}<span class="badge-tip">${b.t}</span>`;
-      el.onclick = () => {
-        el.classList.toggle('on');
-        S.activeBadges = Array.from(document.querySelectorAll('.badge-opt.on')).map(x=>x.textContent.trim().replace(/\n.*/,''));
-        updatePreview();
-      };
-      cont.appendChild(el);
-    });
-  }
-
-  // ── SOCIALS ────────────────────────────────────────────────────────────────
-  function renderSocials() {
-    const cont = document.getElementById('social-editor'); cont.innerHTML='';
-    S.socials.forEach((s,i)=>{
-      const row = document.createElement('div'); row.className='social-row';
-      const sel = document.createElement('select');
-      sel.innerHTML=['Discord','GitHub','YouTube','TikTok','Twitter/X','Instagram','Twitch','Steam','Spotify','Website'].map(p=>`<option${p===s.platform?' selected':''}>${p}</option>`).join('');
-      sel.onchange=()=>{S.socials[i].platform=sel.value;updatePreview();};
-      const inp=document.createElement('input'); inp.type='url'; inp.placeholder='https://...'; inp.value=s.href||'';
-      inp.oninput=()=>S.socials[i].href=inp.value;
-      const del=document.createElement('button'); del.className='del-btn'; del.textContent='✕';
-      del.onclick=()=>{S.socials.splice(i,1);renderSocials();updatePreview();};
-      row.appendChild(sel); row.appendChild(inp); row.appendChild(del);
-      cont.appendChild(row);
-    });
-    updatePreview();
-  }
-  function addSocial(){S.socials.push({platform:'Website',href:''});renderSocials();}
-
-  // ── SKILLS ─────────────────────────────────────────────────────────────────
-  function renderSkills() {
-    const cont=document.getElementById('skills-editor'); cont.innerHTML='';
-    S.skills.forEach((s,i)=>{
-      const row=document.createElement('div'); row.className='skill-edit';
-      const inp=document.createElement('input'); inp.type='text'; inp.value=s.name||''; inp.placeholder='Skill name';
-      inp.oninput=()=>{S.skills[i].name=inp.value;updatePreview();};
-      const range=document.createElement('input'); range.type='range'; range.min=0; range.max=100; range.value=s.pct||50;
-      const pct=document.createElement('div'); pct.className='skill-pct'; pct.textContent=(s.pct||50)+'%';
-      range.oninput=()=>{S.skills[i].pct=parseInt(range.value);pct.textContent=range.value+'%';updatePreview();};
-      const del=document.createElement('button'); del.className='del-btn'; del.textContent='✕';
-      del.onclick=()=>{S.skills.splice(i,1);renderSkills();updatePreview();};
-      row.appendChild(inp); row.appendChild(range); row.appendChild(pct); row.appendChild(del);
-      cont.appendChild(row);
-    });
-  }
-  function addSkill(){S.skills.push({name:'New Skill',pct:50});renderSkills();}
-
-  // ── LIVE PREVIEW ───────────────────────────────────────────────────────────
-  function updatePreview() {
-    document.getElementById('pv-name').textContent = S.name || 'VOID_USER';
-    document.getElementById('pv-bio').textContent  = S.bio  || '// your bio here';
-    // badges
-    const pb = document.getElementById('pv-badges');
-    pb.innerHTML = S.activeBadges.map(e=>`<span style="font-size:15px;">${e}</span>`).join('');
-    // socials
-    const ps = document.getElementById('pv-socials');
-    ps.innerHTML = S.socials.map(s=>`<span class="pv-social">${ICONS_MAP[s.platform]||'🔗'} ${s.platform}</span>`).join('');
-    // skills
-    const psk = document.getElementById('pv-skills');
-    psk.innerHTML = S.skills.map(s=>`
-      <div class="pv-skill-row">
-        <div class="pv-skill-info"><span>${s.name}</span><span style="color:var(--p)">${s.pct}%</span></div>
-        <div class="pv-bar"><div class="pv-fill" style="width:${s.pct}%"></div></div>
-      </div>`).join('');
-  }
-
-  // ── SUMMARY ────────────────────────────────────────────────────────────────
-  function buildSummary() {
-    const el=document.getElementById('launch-summary');
-    el.innerHTML=`
-      <div>👤 Name: <b>${S.name||'(not set)'}</b></div>
-      <div>🎨 Theme: <b>${S.theme}</b></div>
-      <div>🖼 Background: <b>${S.bgImage?'Custom upload':S.bgTheme||'None'}</b></div>
-      <div>🏅 Badges: <b>${S.activeBadges.join(' ')}</b></div>
-      <div>🔗 Socials: <b>${S.socials.length} link(s)</b></div>
-      <div>📊 Skills: <b>${S.skills.length} skill(s)</b></div>
-      <div>🎵 Music: <b>${S.musicUrl?'Set':'None'}</b></div>
-    `;
-  }
-
-  // ── LAUNCH ─────────────────────────────────────────────────────────────────
-  function launch() {
-    // Build final save object
-    const save = {
-      name:         S.name,
-      bio:          S.bio,
-      avatar:       S.avatar,
-      avatarData:   S.avatarData,
-      bgImage:      S.bgImage,
-      bgTheme:      S.bgTheme,
-      theme:        S.theme,
-      primaryColor: S.primaryColor,
-      secondaryColor:S.secondaryColor,
-      nameAnim:     S.nameAnim,
-      cursorEffect: S.cursorEffect,
-      glowIntensity:S.glowIntensity,
-      musicUrl:     S.musicUrl,
-      startText:    S.startText || '— CLICK TO ENTER —',
-      badges: S.activeBadges.map(e=>{ const b=ALL_BADGES.find(x=>x.e===e); return {emoji:e,tip:b?b.t:''}; }),
-      socials: S.socials.map(s=>({platform:s.platform,href:s.href,icon:ICONS_MAP[s.platform]||'🔗'})),
-      skills: S.skills,
+    // ── STATE ────────────────────────────────────────────────────────────────
+    let S = {
+        name:'', bio:'',
+        avatar:'https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a',
+        avatarData:null, bgImage:null, bgTheme:'default',
+        theme:'default', primaryColor:'#00CED1', secondaryColor:'#FF6B9E',
+        nameAnim:'typewriter', cursorEffect:'default',
+        activeBadges:['⚡','🛡','💎'],
+        socials:[{platform:'Discord',href:''},{platform:'GitHub',href:''}],
+        skills:[{name:'Python',pct:87},{name:'C++',pct:75}],
+        musicUrl:'', startText:'— CLICK TO ENTER —',
     };
 
-    localStorage.setItem('void_custom', JSON.stringify(save));
+    // ── STEPS ────────────────────────────────────────────────────────────────
+    let cur = 1;
+    function goStep(n) {
+        document.querySelectorAll('.panel').forEach((p,i) => p.classList.toggle('active', i+1===n));
+        document.querySelectorAll('.si-step').forEach((s,i) => {
+            s.classList.toggle('active', i+1===n);
+            i+1 < n ? s.classList.add('done') : s.classList.remove('done');
+        });
+        cur = n;
+        if (n===6) buildSummary();
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
+    function next(n) { goStep(n+1); }
 
-    // Launch animation then redirect
-    document.getElementById('launch-screen').classList.add('show');
-    setTimeout(()=>{ window.location.href = 'index.html'; }, 2000);
-  }
+    // ── SELECTOR TILES ───────────────────────────────────────────────────────
+    function pick(el, group) {
+        el.closest('.three-col, .two-col').querySelectorAll('.sel-tile').forEach(e => e.classList.remove('on'));
+        el.classList.add('on');
+        if (group==='anim')   S.nameAnim     = el.dataset.anim;
+        if (group==='cursor') S.cursorEffect = el.dataset.cursor;
+        if (group==='bg')   { S.bgTheme = el.dataset.bg; S.bgImage = null; document.getElementById('bg-img-preview').style.display='none'; }
+    }
 
-  // ── INIT ───────────────────────────────────────────────────────────────────
-  buildBadgePicker();
-  renderSocials();
-  renderSkills();
-  updatePreview();
-  </script>
+    // ── THEME ────────────────────────────────────────────────────────────────
+    function pickTheme(el) {
+        document.querySelectorAll('.swatch').forEach(e => e.classList.remove('on'));
+        el.classList.add('on');
+        S.theme = el.dataset.theme;
+        const t = THEMES_MAP[S.theme] || THEMES_MAP.default;
+        S.primaryColor = t.p; S.secondaryColor = t.s;
+        document.getElementById('cp-primary').value   = t.p;
+        document.getElementById('cp-secondary').value = t.s;
+        applyColors();
+    }
+    function applyColors() {
+        document.documentElement.style.setProperty('--primary-color',   S.primaryColor);
+        document.documentElement.style.setProperty('--secondary-color', S.secondaryColor);
+    }
+
+    // ── AVATAR UPLOAD ────────────────────────────────────────────────────────
+    function handleAvatar(e) {
+        const file = e.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            S.avatarData = ev.target.result; S.avatar = null;
+            document.getElementById('av-preview').src = ev.target.result;
+            document.getElementById('av-zone').classList.add('done');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ── BACKGROUND UPLOAD ────────────────────────────────────────────────────
+    function handleBg(e) {
+        const file = e.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            S.bgImage = ev.target.result; S.bgTheme = null;
+            document.querySelectorAll('[data-bg]').forEach(el => el.classList.remove('on'));
+            if (!file.type.startsWith('video/')) {
+                const prev = document.getElementById('bg-img-preview');
+                prev.src = ev.target.result; prev.style.display = 'block';
+            }
+            document.getElementById('bg-zone').classList.add('done');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ── BADGES ───────────────────────────────────────────────────────────────
+    function buildBadges() {
+        const cont = document.getElementById('badge-picker'); cont.innerHTML='';
+        ALL_BADGES.forEach(b => {
+            const el = document.createElement('div');
+            el.className = 'bp-item' + (S.activeBadges.includes(b.e) ? ' on' : '');
+            el.innerHTML = `${b.e}<span class="bp-tip">${b.t}</span>`;
+            el.onclick = () => {
+                el.classList.toggle('on');
+                S.activeBadges = Array.from(document.querySelectorAll('.bp-item.on'))
+                    .map(x => x.childNodes[0].textContent.trim());
+            };
+            cont.appendChild(el);
+        });
+    }
+
+    // ── SOCIALS ──────────────────────────────────────────────────────────────
+    function renderSocials() {
+        const cont = document.getElementById('social-editor'); cont.innerHTML='';
+        S.socials.forEach((s,i) => {
+            const row = document.createElement('div'); row.className = 'social-row';
+            const sel = document.createElement('select');
+            sel.innerHTML = PLATS.map(p=>`<option${p===s.platform?' selected':''}>${p}</option>`).join('');
+            sel.onchange = () => S.socials[i].platform = sel.value;
+            const inp = document.createElement('input'); inp.type='url'; inp.placeholder='https://...'; inp.value=s.href||'';
+            inp.oninput = () => S.socials[i].href = inp.value;
+            const del = document.createElement('button'); del.className='del-btn'; del.textContent='✕';
+            del.onclick = () => { S.socials.splice(i,1); renderSocials(); };
+            row.appendChild(sel); row.appendChild(inp); row.appendChild(del);
+            cont.appendChild(row);
+        });
+    }
+    function addSocial() { S.socials.push({platform:'Website',href:''}); renderSocials(); }
+
+    // ── SKILLS ───────────────────────────────────────────────────────────────
+    function renderSkills() {
+        const cont = document.getElementById('skills-editor'); cont.innerHTML='';
+        S.skills.forEach((s,i) => {
+            const row = document.createElement('div'); row.className='skill-row';
+            const inp = document.createElement('input'); inp.type='text'; inp.value=s.name||''; inp.placeholder='Skill name';
+            inp.oninput = () => S.skills[i].name = inp.value;
+            const range = document.createElement('input'); range.type='range'; range.min=0; range.max=100; range.value=s.pct||50;
+            const pct = document.createElement('div'); pct.className='skill-pct'; pct.textContent=(s.pct||50)+'%';
+            range.oninput = () => { S.skills[i].pct=parseInt(range.value); pct.textContent=range.value+'%'; };
+            const del = document.createElement('button'); del.className='del-btn'; del.textContent='✕';
+            del.onclick = () => { S.skills.splice(i,1); renderSkills(); };
+            row.appendChild(inp); row.appendChild(range); row.appendChild(pct); row.appendChild(del);
+            cont.appendChild(row);
+        });
+    }
+    function addSkill() { S.skills.push({name:'New Skill',pct:50}); renderSkills(); }
+
+    // ── SUMMARY ──────────────────────────────────────────────────────────────
+    function buildSummary() {
+        document.getElementById('summary-rows').innerHTML = `
+            <div>👤 Name: <b>${S.name||'(not set)'}</b></div>
+            <div>🎨 Theme: <b>${S.theme}</b></div>
+            <div>🖼 Background: <b>${S.bgImage?'Custom upload':S.bgTheme||'None'}</b></div>
+            <div>🖼 Avatar: <b>${S.avatarData?'Uploaded from computer':S.avatar?'URL':'Default'}</b></div>
+            <div>🏅 Badges: <b>${S.activeBadges.join(' ')}</b></div>
+            <div>🔗 Socials: <b>${S.socials.length} link(s)</b></div>
+            <div>📊 Skills: <b>${S.skills.length} skill(s)</b></div>
+            <div>🎵 Music: <b>${S.musicUrl?'✓ Set':'None'}</b></div>
+        `;
+    }
+
+    // ── LAUNCH ───────────────────────────────────────────────────────────────
+    function launch() {
+        const ICONS = {Discord:'💬',GitHub:'⬡',YouTube:'▶',TikTok:'♪','Twitter/X':'✕',Instagram:'📷',Twitch:'🟣',Steam:'🎮',Spotify:'🎵',Website:'🌐'};
+        const save = {
+            name: S.name,
+            bio: S.bio,
+            avatar: S.avatar,
+            avatarData: S.avatarData,   // base64 from file upload
+            bgImage: S.bgImage,          // base64 from file upload
+            bgTheme: S.bgTheme,
+            theme: S.theme,
+            primaryColor: S.primaryColor,
+            secondaryColor: S.secondaryColor,
+            nameAnim: S.nameAnim,
+            cursorEffect: S.cursorEffect,
+            musicUrl: S.musicUrl,
+            startText: S.startText || '— CLICK TO ENTER —',
+            badges: S.activeBadges.map(e => {
+                const b = ALL_BADGES.find(x=>x.e===e);
+                return { emoji: e, tip: b ? b.t : '' };
+            }),
+            socials: S.socials.map(s => ({
+                platform: s.platform,
+                href: s.href,
+                icon: ICONS[s.platform]||'🔗'
+            })),
+            skills: S.skills,
+        };
+
+        localStorage.setItem('void_custom', JSON.stringify(save));
+        document.getElementById('launch-overlay').classList.add('show');
+        setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+    }
+
+    // ── INIT ─────────────────────────────────────────────────────────────────
+    buildBadges();
+    renderSocials();
+    renderSkills();
+    </script>
 </body>
 </html>
