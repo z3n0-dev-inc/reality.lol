@@ -3,1071 +3,890 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>void.bio — Customize Your Profile</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <title>void.bio — Build Your Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #00CED1;
-      --secondary: #FF6B9E;
-      --bg: #08080F;
-      --surface: #0D0D1F;
-      --card: rgba(13,13,31,0.9);
-      --border: rgba(0,206,209,0.2);
-      --text: #E0E0FF;
-      --muted: rgba(224,224,255,0.45);
-      --success: #22C55E;
-      --warn: #FACC15;
-      --premium: linear-gradient(135deg,#FACC15,#F97316,#EF4444);
+      --p: #00CED1;
+      --s: #FF6B9E;
+      --bg: #07070F;
+      --surface: #0D0D20;
+      --card: rgba(13,13,32,0.92);
+      --border: rgba(0,206,209,0.18);
+      --text: #E8E8FF;
+      --muted: rgba(232,232,255,0.4);
     }
-    *{margin:0;padding:0;box-sizing:border-box;}
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
     body {
-      font-family:'Space Mono',monospace;
-      background:var(--bg); color:var(--text);
-      min-height:100vh; overflow-x:hidden; cursor:none;
-    }
-    body.touch-device{cursor:auto;}
-
-    /* ── CURSOR ── */
-    #cursor{position:fixed;width:20px;height:20px;border:2px solid var(--primary);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:difference;transition:width 0.15s,height 0.15s;}
-    #cursor-dot{position:fixed;width:5px;height:5px;border-radius:50%;background:var(--primary);pointer-events:none;z-index:99999;transform:translate(-50%,-50%);}
-
-    /* ── BG ── */
-    .bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 60% at 20% 20%,rgba(0,206,209,0.06),transparent),radial-gradient(ellipse 50% 50% at 80% 80%,rgba(255,107,158,0.06),transparent);}
-    .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,206,209,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,206,209,0.04) 1px,transparent 1px);background-size:40px 40px;}
-
-    /* ── LAYOUT ── */
-    .wrapper{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:40px 24px 100px;}
-
-    /* ── NAV ── */
-    nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;}
-    .nav-logo{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;}
-    .nav-right{display:flex;gap:12px;align-items:center;}
-    .btn-ghost{padding:8px 18px;border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:12px;font-family:'Space Mono',monospace;cursor:pointer;background:none;text-decoration:none;transition:all 0.2s;letter-spacing:1px;}
-    .btn-ghost:hover{border-color:var(--primary);color:var(--text);}
-    .btn-primary{padding:8px 22px;border:none;border-radius:20px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#000;font-size:12px;font-family:'Space Mono',monospace;cursor:pointer;font-weight:700;letter-spacing:1px;transition:transform 0.2s,box-shadow 0.2s;}
-    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(0,206,209,0.4);}
-
-    /* ── PAGE HEADER ── */
-    .page-header{margin-bottom:40px;}
-    .page-header h1{font-family:'Orbitron',sans-serif;font-size:36px;font-weight:900;margin-bottom:8px;}
-    .page-header h1 span{background:var(--premium);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-    .page-header p{color:var(--muted);font-size:13px;line-height:1.7;}
-
-    /* ── GRID ── */
-    .cust-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-    @media(max-width:800px){.cust-grid{grid-template-columns:1fr;}}
-
-    /* ── SECTION CARD ── */
-    .section-card{
-      background:var(--card);border:1px solid var(--border);border-radius:16px;
-      padding:24px;backdrop-filter:blur(15px);
-      transition:border-color 0.2s, box-shadow 0.2s;
-    }
-    .section-card:hover{border-color:rgba(0,206,209,0.4);box-shadow:0 0 30px rgba(0,206,209,0.08);}
-    .section-card.full{grid-column:1/-1;}
-    .section-title{
-      font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;
-      text-transform:uppercase;color:var(--muted);margin-bottom:20px;
-      display:flex;align-items:center;gap:8px;
-    }
-    .section-title::before{content:'';display:block;width:3px;height:14px;background:linear-gradient(var(--primary),var(--secondary));border-radius:2px;}
-    .premium-badge{
-      display:inline-block;padding:2px 8px;border-radius:10px;
-      background:var(--premium);color:#000;font-size:9px;font-weight:700;
-      letter-spacing:1px;margin-left:auto;
+      font-family: 'Space Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: none;
     }
 
-    /* ── FORM ELEMENTS ── */
-    label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;letter-spacing:1px;}
-    input[type="text"],input[type="url"],textarea,select{
-      width:100%;background:rgba(255,255,255,0.04);
-      border:1px solid var(--border);border-radius:8px;
-      padding:10px 14px;color:var(--text);font-family:'Space Mono',monospace;
-      font-size:12px;outline:none;transition:border-color 0.2s;
+    /* ── CURSOR ─────────────────────────────────────────────────── */
+    #c { position:fixed; width:18px; height:18px; border:2px solid var(--p); border-radius:50%; pointer-events:none; z-index:99999; transform:translate(-50%,-50%); mix-blend-mode:difference; transition:width .12s,height .12s; }
+    #cd { position:fixed; width:4px; height:4px; border-radius:50%; background:var(--p); pointer-events:none; z-index:99999; transform:translate(-50%,-50%); }
+
+    /* ── BACKGROUND ─────────────────────────────────────────────── */
+    .bg-grid { position:fixed; inset:0; z-index:0; pointer-events:none; background-image:linear-gradient(rgba(0,206,209,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,206,209,.03) 1px,transparent 1px); background-size:48px 48px; }
+    .bg-glow  { position:fixed; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse 70% 50% at 15% 10%,rgba(0,206,209,.07),transparent),radial-gradient(ellipse 50% 60% at 85% 90%,rgba(255,107,158,.06),transparent); }
+
+    /* ── HERO ───────────────────────────────────────────────────── */
+    #hero {
+      position:relative; z-index:10;
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:40px 24px; text-align:center; gap:0;
+    }
+    .hero-eyebrow {
+      font-size:10px; letter-spacing:5px; color:var(--muted);
+      text-transform:uppercase; margin-bottom:24px;
+      opacity:0; animation:fadeUp .6s ease-out .1s forwards;
+    }
+    .hero-logo {
+      font-family:'Orbitron',sans-serif; font-weight:900;
+      font-size:clamp(52px,10vw,110px);
+      background:linear-gradient(135deg,var(--p) 30%,var(--s));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      letter-spacing:6px; line-height:1;
+      opacity:0; animation:fadeUp .7s ease-out .2s forwards;
+    }
+    .hero-dot {
+      display:inline-block; width:14px; height:14px; border-radius:50%;
+      background:var(--s); margin-left:4px; vertical-align:middle;
+      animation:bop 2s ease-in-out infinite;
+    }
+    @keyframes bop { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+    .hero-sub {
+      font-size:clamp(13px,2vw,16px); color:var(--muted);
+      margin-top:20px; line-height:1.8; max-width:520px;
+      opacity:0; animation:fadeUp .7s ease-out .35s forwards;
+    }
+    .hero-pills {
+      display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+      margin-top:28px;
+      opacity:0; animation:fadeUp .7s ease-out .5s forwards;
+    }
+    .pill {
+      padding:6px 16px; border-radius:20px; font-size:11px; letter-spacing:1px;
+      border:1px solid var(--border); color:var(--muted); background:rgba(255,255,255,.03);
+    }
+    .pill.hot { border-color:rgba(0,206,209,.5); color:var(--p); background:rgba(0,206,209,.06); }
+    .hero-cta {
+      margin-top:48px; display:flex; gap:14px; flex-wrap:wrap; justify-content:center;
+      opacity:0; animation:fadeUp .7s ease-out .65s forwards;
+    }
+    .btn-main {
+      padding:14px 36px; border-radius:30px; border:none; cursor:pointer;
+      background:linear-gradient(135deg,var(--p),var(--s));
+      color:#000; font-family:'Space Mono',monospace; font-weight:700;
+      font-size:13px; letter-spacing:2px; text-transform:uppercase;
+      transition:transform .2s,box-shadow .2s;
+      box-shadow:0 0 0 rgba(0,206,209,0);
+    }
+    .btn-main:hover { transform:translateY(-3px); box-shadow:0 12px 40px rgba(0,206,209,.35); }
+    .btn-ghost {
+      padding:14px 32px; border-radius:30px; border:1px solid var(--border);
+      background:none; color:var(--muted); font-family:'Space Mono',monospace;
+      font-size:12px; letter-spacing:2px; cursor:pointer; transition:all .2s;
+    }
+    .btn-ghost:hover { border-color:var(--p); color:var(--text); }
+
+    .scroll-hint {
+      position:absolute; bottom:32px; left:50%; transform:translateX(-50%);
+      font-size:10px; color:var(--muted); letter-spacing:3px;
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+      opacity:0; animation:fadeUp .7s ease-out 1s forwards;
+    }
+    .scroll-arrow { width:1px; height:40px; background:linear-gradient(var(--p),transparent); animation:scrollAnim 1.5s ease-in-out infinite; }
+    @keyframes scrollAnim { 0%,100%{transform:scaleY(1);opacity:1;} 50%{transform:scaleY(.5);opacity:.3;} }
+
+    /* ── FEATURES STRIP ─────────────────────────────────────────── */
+    #features {
+      position:relative; z-index:10;
+      padding:80px 24px; max-width:1100px; margin:0 auto;
+    }
+    .section-label {
+      font-size:10px; letter-spacing:5px; color:var(--muted);
+      text-transform:uppercase; text-align:center; margin-bottom:16px;
+    }
+    .section-title {
+      font-family:'Orbitron',sans-serif; font-size:clamp(22px,4vw,36px);
+      font-weight:900; text-align:center; margin-bottom:48px;
+    }
+    .section-title span { background:linear-gradient(135deg,var(--p),var(--s)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .feat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    @media(max-width:700px){ .feat-grid{grid-template-columns:1fr;} }
+    .feat-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:28px 24px;
+      backdrop-filter:blur(12px);
+      transition:border-color .2s,transform .2s,box-shadow .2s;
+    }
+    .feat-card:hover { border-color:rgba(0,206,209,.4); transform:translateY(-4px); box-shadow:0 20px 50px rgba(0,0,0,.4); }
+    .feat-icon { font-size:32px; margin-bottom:14px; }
+    .feat-name { font-family:'Orbitron',sans-serif; font-size:13px; letter-spacing:2px; margin-bottom:8px; color:var(--p); }
+    .feat-desc { font-size:12px; color:var(--muted); line-height:1.8; }
+    .feat-tag { display:inline-block; margin-top:12px; padding:3px 10px; border-radius:10px; font-size:9px; letter-spacing:2px; background:rgba(0,206,209,.1); color:var(--p); border:1px solid rgba(0,206,209,.2); }
+
+    /* ── EDITOR SECTION ─────────────────────────────────────────── */
+    #editor {
+      position:relative; z-index:10;
+      padding:80px 24px 120px; max-width:1200px; margin:0 auto;
+    }
+    .editor-layout { display:grid; grid-template-columns:1fr 380px; gap:32px; align-items:start; }
+    @media(max-width:900px){ .editor-layout{grid-template-columns:1fr;} }
+
+    /* Steps sidebar */
+    .steps-nav { display:flex; flex-direction:column; gap:4px; margin-bottom:32px; }
+    .step-btn {
+      display:flex; align-items:center; gap:14px;
+      padding:14px 18px; border-radius:12px; cursor:pointer;
+      border:1px solid transparent; background:none;
+      color:var(--muted); font-family:'Space Mono',monospace;
+      font-size:12px; letter-spacing:1px; text-align:left;
+      transition:all .2s;
+    }
+    .step-btn:hover { background:rgba(255,255,255,.03); color:var(--text); }
+    .step-btn.active { background:rgba(0,206,209,.08); border-color:rgba(0,206,209,.3); color:var(--p); }
+    .step-num {
+      width:28px; height:28px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size:11px; font-weight:700;
+      background:rgba(255,255,255,.05); border:1px solid var(--border);
+    }
+    .step-btn.active .step-num { background:var(--p); color:#000; border-color:var(--p); }
+    .step-btn.done .step-num { background:rgba(34,197,94,.2); border-color:#22C55E; color:#22C55E; }
+    .step-btn.done .step-num::after { content:"✓"; }
+
+    /* Step panels */
+    .step-panel { display:none; }
+    .step-panel.active { display:block; animation:fadeIn .3s ease-out; }
+    @keyframes fadeIn { from{opacity:0;transform:translateX(10px);} to{opacity:1;transform:translateX(0);} }
+
+    .panel-title {
+      font-family:'Orbitron',sans-serif; font-size:22px; font-weight:900;
+      margin-bottom:6px;
+    }
+    .panel-sub { font-size:12px; color:var(--muted); margin-bottom:32px; line-height:1.7; }
+
+    /* Form */
+    .field { margin-bottom:22px; }
+    .field label { display:block; font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
+    .field input[type="text"],
+    .field input[type="url"],
+    .field textarea,
+    .field select {
+      width:100%; background:rgba(255,255,255,.04);
+      border:1px solid var(--border); border-radius:10px;
+      padding:12px 16px; color:var(--text);
+      font-family:'Space Mono',monospace; font-size:12px;
+      outline:none; transition:border-color .2s,background .2s;
       resize:none;
     }
-    input[type="text"]:focus,input[type="url"]:focus,textarea:focus,select:focus{
-      border-color:var(--primary);background:rgba(0,206,209,0.04);
+    .field input:focus, .field textarea:focus, .field select:focus {
+      border-color:var(--p); background:rgba(0,206,209,.04);
     }
-    select option{background:#0D0D1F;}
-    .input-group{margin-bottom:16px;}
-    .input-hint{font-size:10px;color:var(--muted);margin-top:4px;}
+    .field select option { background:#0D0D20; }
+    .field-hint { font-size:10px; color:var(--muted); margin-top:6px; }
+    .char-count { font-size:10px; color:var(--muted); text-align:right; margin-top:4px; }
 
-    /* ── AVATAR UPLOAD ── */
-    .avatar-upload{
-      display:flex;align-items:center;gap:16px;margin-bottom:16px;
+    /* Upload zones */
+    .upload-zone {
+      border:1px dashed rgba(0,206,209,.3); border-radius:12px;
+      padding:28px; text-align:center; cursor:pointer; position:relative;
+      transition:all .2s; background:rgba(255,255,255,.02);
     }
-    .avatar-preview{
-      width:80px;height:80px;border-radius:50%;
-      background:rgba(255,255,255,0.05);
-      border:2px solid var(--border);
-      object-fit:cover;display:block;flex-shrink:0;
+    .upload-zone:hover { border-color:var(--p); background:rgba(0,206,209,.04); }
+    .upload-zone input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+    .upload-zone .uz-icon { font-size:36px; margin-bottom:10px; }
+    .upload-zone .uz-text { font-size:13px; color:var(--text); margin-bottom:4px; }
+    .upload-zone .uz-hint { font-size:10px; color:var(--muted); }
+    .upload-zone.has-file { border-color:rgba(34,197,94,.4); background:rgba(34,197,94,.04); }
+    .upload-zone.has-file .uz-icon::after { content:" ✓"; font-size:18px; }
+
+    .avatar-row { display:flex; gap:20px; align-items:center; }
+    .avatar-preview { width:90px; height:90px; border-radius:50%; object-fit:cover; border:2px solid var(--border); flex-shrink:0; background:#111; }
+    .avatar-row .upload-zone { flex:1; padding:20px; }
+
+    /* Grid selectors */
+    .sel-grid { display:grid; gap:10px; }
+    .sel-grid.cols2 { grid-template-columns:1fr 1fr; }
+    .sel-grid.cols3 { grid-template-columns:1fr 1fr 1fr; }
+    .sel-item {
+      padding:14px 10px; border-radius:12px; cursor:pointer;
+      border:1px solid var(--border); background:rgba(255,255,255,.02);
+      text-align:center; transition:all .2s;
     }
-    .upload-box{
-      flex:1;border:1px dashed var(--border);border-radius:10px;
-      padding:16px;text-align:center;cursor:pointer;
-      transition:all 0.2s;font-size:11px;color:var(--muted);
-      position:relative;
+    .sel-item:hover { border-color:rgba(0,206,209,.4); background:rgba(0,206,209,.04); }
+    .sel-item.on { border-color:var(--p); background:rgba(0,206,209,.1); box-shadow:0 0 20px rgba(0,206,209,.1); }
+    .sel-item .si-icon { font-size:28px; margin-bottom:6px; }
+    .sel-item .si-name { font-size:10px; color:var(--muted); letter-spacing:1px; }
+    .sel-item.on .si-name { color:var(--p); }
+
+    /* Theme swatches */
+    .theme-swatches { display:flex; gap:10px; flex-wrap:wrap; }
+    .swatch {
+      width:48px; height:48px; border-radius:50%; cursor:pointer;
+      border:3px solid transparent; transition:all .2s;
     }
-    .upload-box:hover{border-color:var(--primary);color:var(--text);background:rgba(0,206,209,0.04);}
-    .upload-box input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;}
-    .upload-box .upload-icon{font-size:24px;margin-bottom:6px;}
+    .swatch:hover { transform:scale(1.15); }
+    .swatch.on { border-color:#fff; box-shadow:0 0 16px rgba(255,255,255,.3); }
+    .color-custom-row { display:flex; gap:16px; margin-top:16px; align-items:center; }
+    .color-custom-row label { font-size:11px; color:var(--muted); }
+    input[type="color"] { width:36px; height:36px; border-radius:50%; border:2px solid var(--border); cursor:pointer; padding:2px; background:none; outline:none; }
 
-    /* ── BG UPLOAD ── */
-    .bg-upload-area{
-      border:1px dashed var(--border);border-radius:12px;
-      padding:24px;text-align:center;cursor:pointer;
-      transition:all 0.2s;position:relative;
-      min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    /* Badges grid */
+    .badge-grid { display:flex; flex-wrap:wrap; gap:8px; }
+    .badge-opt {
+      width:44px; height:44px; border-radius:10px; cursor:pointer;
+      border:2px solid var(--border); background:rgba(255,255,255,.03);
+      display:flex; align-items:center; justify-content:center;
+      font-size:22px; transition:all .2s; position:relative;
     }
-    .bg-upload-area:hover{border-color:var(--primary);background:rgba(0,206,209,0.03);}
-    .bg-upload-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-    .bg-preview{width:100%;height:100px;object-fit:cover;border-radius:8px;display:none;margin-top:10px;}
+    .badge-opt:hover { border-color:var(--p); transform:scale(1.1); }
+    .badge-opt.on { border-color:var(--p); background:rgba(0,206,209,.12); box-shadow:0 0 12px rgba(0,206,209,.25); }
+    .badge-opt .badge-tip { position:absolute; bottom:-22px; left:50%; transform:translateX(-50%); font-size:8px; color:var(--muted); white-space:nowrap; opacity:0; transition:opacity .2s; }
+    .badge-opt:hover .badge-tip { opacity:1; }
 
-    /* ── THEME PICKER ── */
-    .theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
-    .theme-opt{
-      border-radius:10px;padding:10px 6px;cursor:pointer;
-      border:2px solid transparent;transition:all 0.2s;text-align:center;
+    /* Social rows */
+    .social-row { display:flex; gap:8px; margin-bottom:10px; }
+    .social-row select { width:120px; flex-shrink:0; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'Space Mono',monospace; font-size:11px; outline:none; }
+    .social-row input { flex:1; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'Space Mono',monospace; font-size:11px; outline:none; }
+    .social-row input:focus, .social-row select:focus { border-color:var(--p); }
+    .del-btn { width:38px; height:38px; border-radius:8px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-size:14px; transition:all .2s; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+    .del-btn:hover { border-color:#EF4444; color:#EF4444; }
+    .add-row-btn { display:flex; align-items:center; gap:8px; padding:10px 16px; border:1px dashed var(--border); border-radius:8px; background:none; color:var(--muted); font-family:'Space Mono',monospace; font-size:11px; cursor:pointer; letter-spacing:1px; transition:all .2s; margin-top:4px; }
+    .add-row-btn:hover { border-color:var(--p); color:var(--text); }
+
+    /* Skill rows */
+    .skill-edit { display:flex; gap:8px; margin-bottom:10px; align-items:center; }
+    .skill-edit input[type="text"] { flex:1; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'Space Mono',monospace; font-size:11px; outline:none; }
+    .skill-edit input[type="text"]:focus { border-color:var(--p); }
+    .skill-edit input[type="range"] { width:90px; accent-color:var(--p); }
+    .skill-pct { width:34px; font-size:11px; color:var(--p); text-align:right; flex-shrink:0; }
+
+    /* Range sliders */
+    .range-field { display:flex; align-items:center; gap:14px; }
+    .range-field input[type="range"] { flex:1; accent-color:var(--p); }
+    .range-val { font-size:11px; color:var(--p); width:36px; text-align:right; }
+
+    /* Step nav buttons */
+    .step-nav { display:flex; gap:12px; margin-top:36px; }
+    .btn-next { padding:12px 32px; border-radius:24px; border:none; cursor:pointer; background:linear-gradient(135deg,var(--p),var(--s)); color:#000; font-family:'Space Mono',monospace; font-weight:700; font-size:12px; letter-spacing:2px; transition:transform .2s,box-shadow .2s; }
+    .btn-next:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(0,206,209,.3); }
+    .btn-back { padding:12px 24px; border-radius:24px; border:1px solid var(--border); background:none; color:var(--muted); font-family:'Space Mono',monospace; font-size:12px; letter-spacing:1px; cursor:pointer; transition:all .2s; }
+    .btn-back:hover { border-color:var(--p); color:var(--text); }
+    .btn-launch { padding:16px 48px; border-radius:30px; border:none; cursor:pointer; background:linear-gradient(135deg,var(--p),var(--s)); color:#000; font-family:'Orbitron',sans-serif; font-weight:900; font-size:14px; letter-spacing:3px; transition:transform .2s,box-shadow .2s; }
+    .btn-launch:hover { transform:translateY(-3px); box-shadow:0 16px 50px rgba(0,206,209,.45); }
+
+    /* ── PREVIEW CARD ───────────────────────────────────────────── */
+    .preview-wrap { position:sticky; top:32px; }
+    .preview-label { font-size:9px; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:14px; text-align:center; }
+    .preview-card {
+      background:rgba(10,10,25,.9); border:1px solid var(--border);
+      border-radius:18px; padding:22px; backdrop-filter:blur(20px);
+      box-shadow:0 0 40px rgba(0,206,209,.1);
     }
-    .theme-opt:hover{transform:translateY(-2px);}
-    .theme-opt.selected{border-color:#fff;box-shadow:0 0 15px rgba(255,255,255,0.2);}
-    .theme-swatch{width:36px;height:36px;border-radius:50%;margin:0 auto 6px;display:block;}
-    .theme-name{font-size:9px;color:var(--muted);letter-spacing:1px;}
+    .pv-header { display:flex; gap:14px; align-items:flex-start; margin-bottom:16px; }
+    .pv-avatar { width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid var(--p); flex-shrink:0; background:#111; }
+    .pv-name { font-family:'Orbitron',sans-serif; font-size:15px; font-weight:900; color:var(--p); margin-bottom:6px; }
+    .pv-badges { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:6px; }
+    .pv-bio { font-size:10px; color:var(--muted); line-height:1.7; }
+    .pv-sep { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:12px 0; }
+    .pv-socials { display:flex; gap:6px; flex-wrap:wrap; }
+    .pv-social { padding:4px 10px; border-radius:12px; background:rgba(255,255,255,.05); font-size:10px; color:var(--muted); border:1px solid var(--border); }
+    .pv-skills { margin-top:12px; }
+    .pv-skill-row { margin-bottom:8px; }
+    .pv-skill-info { display:flex; justify-content:space-between; font-size:10px; margin-bottom:4px; }
+    .pv-bar { height:4px; background:rgba(255,255,255,.08); border-radius:2px; overflow:hidden; }
+    .pv-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--p),var(--s)); transition:width .8s ease; }
+    .pv-bg-preview { width:100%; height:80px; border-radius:10px; object-fit:cover; margin-top:14px; display:none; background:rgba(255,255,255,.04); }
 
-    /* ── COLOR PICKER ── */
-    .color-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
-    .color-option{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.2s;}
-    .color-option:hover,.color-option.active{border-color:#fff;transform:scale(1.15);}
-    input[type="color"]{width:32px;height:32px;border-radius:50%;border:3px solid var(--border);cursor:pointer;padding:2px;background:none;outline:none;}
-
-    /* ── SOCIAL EDITOR ── */
-    .social-row{display:flex;gap:8px;margin-bottom:10px;align-items:center;}
-    .social-row select{width:110px;flex-shrink:0;}
-    .social-row input{flex:1;}
-    .icon-btn{
-      width:32px;height:32px;border-radius:8px;border:1px solid var(--border);
-      background:none;color:var(--muted);cursor:pointer;font-size:14px;
-      display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;
+    /* ── LAUNCH SCREEN ──────────────────────────────────────────── */
+    #launch-screen {
+      display:none; position:fixed; inset:0; z-index:2000;
+      background:var(--bg); flex-direction:column;
+      align-items:center; justify-content:center; gap:20px;
     }
-    .icon-btn:hover{border-color:var(--secondary);color:var(--secondary);}
-    .add-btn{
-      display:flex;align-items:center;gap:6px;padding:8px 14px;
-      border:1px dashed var(--border);border-radius:8px;
-      background:none;color:var(--muted);font-size:11px;cursor:pointer;
-      font-family:'Space Mono',monospace;transition:all 0.2s;letter-spacing:1px;
-    }
-    .add-btn:hover{border-color:var(--primary);color:var(--text);}
+    #launch-screen.show { display:flex; }
+    .launch-logo { font-family:'Orbitron',sans-serif; font-size:56px; font-weight:900; background:linear-gradient(135deg,var(--p),var(--s)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:pulse 1s ease-in-out infinite; }
+    .launch-text { font-size:13px; color:var(--muted); letter-spacing:3px; }
+    .launch-bar { width:200px; height:3px; background:rgba(255,255,255,.08); border-radius:2px; overflow:hidden; }
+    .launch-fill { height:100%; background:linear-gradient(90deg,var(--p),var(--s)); animation:loadBar 1.8s ease-out forwards; }
+    @keyframes loadBar { from{width:0;} to{width:100%;} }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.5;} }
 
-    /* ── SKILL EDITOR ── */
-    .skill-edit-row{display:flex;gap:8px;margin-bottom:10px;align-items:center;}
-    .skill-edit-row input[type="text"]{flex:1;}
-    .skill-edit-row input[type="range"]{width:100px;accent-color:var(--primary);}
-    .skill-pct-display{width:36px;font-size:11px;color:var(--primary);text-align:right;}
-
-    /* ── BADGE PICKER ── */
-    .badge-grid{display:flex;flex-wrap:wrap;gap:8px;}
-    .badge-pick{
-      width:38px;height:38px;border-radius:8px;font-size:20px;
-      display:flex;align-items:center;justify-content:center;
-      border:2px solid var(--border);cursor:pointer;
-      transition:all 0.2s;background:rgba(255,255,255,0.03);
-      position:relative;
-    }
-    .badge-pick:hover{border-color:var(--primary);transform:scale(1.1);}
-    .badge-pick.selected{border-color:var(--primary);background:rgba(0,206,209,0.1);box-shadow:0 0 10px rgba(0,206,209,0.3);}
-    .badge-pick .badge-label{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--muted);white-space:nowrap;}
-
-    /* ── CURSOR EFFECTS ── */
-    .effect-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-    .effect-opt{
-      padding:12px;border-radius:10px;border:1px solid var(--border);cursor:pointer;
-      transition:all 0.2s;text-align:center;
-    }
-    .effect-opt:hover{border-color:var(--primary);}
-    .effect-opt.selected{border-color:var(--primary);background:rgba(0,206,209,0.08);}
-    .effect-opt .effect-icon{font-size:22px;margin-bottom:4px;}
-    .effect-opt .effect-name{font-size:10px;color:var(--muted);letter-spacing:1px;}
-
-    /* ── FONT PICKER ── */
-    .font-list{display:flex;flex-wrap:wrap;gap:8px;}
-    .font-pick{
-      padding:8px 14px;border:1px solid var(--border);border-radius:20px;
-      cursor:pointer;font-size:12px;background:none;color:var(--muted);
-      transition:all 0.2s;
-    }
-    .font-pick:hover{border-color:var(--primary);color:var(--text);}
-    .font-pick.selected{border-color:var(--primary);color:var(--primary);background:rgba(0,206,209,0.08);}
-
-    /* ── LAYOUT PICKER ── */
-    .layout-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-    .layout-opt{
-      padding:14px 10px;border-radius:10px;border:1px solid var(--border);
-      cursor:pointer;transition:all 0.2s;text-align:center;
-    }
-    .layout-opt:hover{border-color:var(--primary);}
-    .layout-opt.selected{border-color:var(--primary);background:rgba(0,206,209,0.08);}
-    .layout-preview{height:50px;border-radius:6px;background:rgba(255,255,255,0.05);margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:4px;}
-    .lp-circle{width:20px;height:20px;border-radius:50%;background:var(--primary);opacity:0.6;}
-    .lp-bar{height:8px;border-radius:4px;background:var(--primary);opacity:0.4;}
-    .layout-name{font-size:10px;color:var(--muted);letter-spacing:1px;}
-
-    /* ── ANIMATED NAME ── */
-    .anim-list{display:flex;flex-wrap:wrap;gap:8px;}
-    .anim-pick{padding:8px 14px;border:1px solid var(--border);border-radius:20px;cursor:pointer;font-size:11px;background:none;color:var(--muted);transition:all 0.2s;letter-spacing:1px;}
-    .anim-pick:hover{border-color:var(--primary);color:var(--text);}
-    .anim-pick.selected{border-color:var(--primary);color:var(--primary);background:rgba(0,206,209,0.08);}
-
-    /* ── MUSIC SECTION ── */
-    .music-url-row{display:flex;gap:8px;}
-    .music-url-row input{flex:1;}
-
-    /* ── SAVE BAR ── */
-    .save-bar{
-      position:fixed;bottom:0;left:0;right:0;z-index:100;
-      background:rgba(8,8,15,0.95);border-top:1px solid var(--border);
-      backdrop-filter:blur(20px);padding:14px 24px;
-      display:flex;align-items:center;justify-content:space-between;gap:16px;
-    }
-    .save-status{font-size:11px;color:var(--muted);letter-spacing:1px;}
-    .save-status.saved{color:var(--success);}
-    .save-actions{display:flex;gap:10px;}
-
-    /* ── PREVIEW PANEL ── */
-    .preview-float{
-      position:sticky;top:24px;background:var(--card);
-      border:1px solid var(--border);border-radius:16px;
-      padding:20px;backdrop-filter:blur(15px);
-    }
-    .preview-title{font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
-    .mini-profile{
-      background:rgba(0,0,0,0.5);border-radius:12px;padding:16px;
-      border:1px solid rgba(255,255,255,0.06);
-    }
-    .mini-header{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;}
-    .mini-avatar{width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);}
-    .mini-name{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--primary);margin-bottom:4px;}
-    .mini-bio{font-size:10px;color:var(--muted);line-height:1.6;}
-    .mini-sep{height:1px;background:rgba(255,255,255,0.06);margin:10px 0;}
-    .mini-socials{display:flex;gap:6px;flex-wrap:wrap;}
-    .mini-social{padding:3px 8px;border-radius:10px;background:rgba(255,255,255,0.05);font-size:10px;color:var(--muted);}
-
-    /* ── TABS ── */
-    .tabs{display:flex;gap:2px;margin-bottom:30px;background:rgba(255,255,255,0.03);border-radius:10px;padding:4px;}
-    .tab{flex:1;padding:9px 12px;border-radius:8px;border:none;background:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:1px;transition:all 0.2s;text-align:center;}
-    .tab:hover{color:var(--text);}
-    .tab.active{background:rgba(0,206,209,0.12);color:var(--primary);border:1px solid rgba(0,206,209,0.25);}
-
-    .tab-content{display:none;}
-    .tab-content.active{display:block;}
-
-    /* ── SCROLLBAR ── */
-    ::-webkit-scrollbar{width:4px;}
-    ::-webkit-scrollbar-track{background:transparent;}
-    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
   </style>
 </head>
 <body>
-  <div id="cursor"></div>
-  <div id="cursor-dot"></div>
+  <div id="c"></div>
+  <div id="cd"></div>
+  <div class="bg-grid"></div>
   <div class="bg-glow"></div>
-  <div class="grid-bg"></div>
 
-  <div class="wrapper">
-
-    <!-- NAV -->
-    <nav>
-      <a href="index.html" class="nav-logo">VOID.BIO</a>
-      <div class="nav-right">
-        <a href="index.html" class="btn-ghost">← View Profile</a>
-        <button class="btn-primary" onclick="saveAll()">Save Changes</button>
-      </div>
-    </nav>
-
-    <!-- HEADER -->
-    <div class="page-header">
-      <h1>Customize <span>Your Profile</span></h1>
-      <p>All premium features are free. No paywalls. No BS. Make it yours.</p>
-    </div>
-
-    <!-- TABS -->
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('identity')">Identity</button>
-      <button class="tab" onclick="switchTab('background')">Background</button>
-      <button class="tab" onclick="switchTab('style')">Style</button>
-      <button class="tab" onclick="switchTab('effects')">Effects</button>
-      <button class="tab" onclick="switchTab('links')">Links & Skills</button>
-    </div>
-
-    <!-- TAB: IDENTITY -->
-    <div class="tab-content active" id="tab-identity">
-      <div class="cust-grid">
-        <div>
-          <!-- Avatar -->
-          <div class="section-card" style="margin-bottom:20px;">
-            <div class="section-title">Avatar <span class="premium-badge">FREE PREMIUM</span></div>
-            <div class="avatar-upload">
-              <img id="avatar-preview" class="avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a" alt="avatar">
-              <div class="upload-box" id="avatar-upload-box">
-                <input type="file" id="avatar-file" accept="image/*" onchange="handleAvatarUpload(event)">
-                <div class="upload-icon">📸</div>
-                <div>Drop image or click to upload</div>
-                <div style="font-size:10px;margin-top:4px;color:var(--muted)">PNG, GIF, JPG — animated GIFs supported!</div>
-              </div>
-            </div>
-            <div class="input-group">
-              <label>Or use avatar URL</label>
-              <input type="url" id="avatar-url" placeholder="https://..." oninput="updateAvatarFromUrl()">
-            </div>
-          </div>
-
-          <!-- Profile Info -->
-          <div class="section-card">
-            <div class="section-title">Profile Info</div>
-            <div class="input-group">
-              <label>Display Name</label>
-              <input type="text" id="edit-name" placeholder="YOUR_NAME" maxlength="30" oninput="updatePreview()">
-            </div>
-            <div class="input-group">
-              <label>Bio</label>
-              <textarea id="edit-bio" rows="3" placeholder="say something cool..." maxlength="120" oninput="updatePreview()"></textarea>
-              <div class="input-hint" id="bio-counter">0/120</div>
-            </div>
-            <div class="input-group">
-              <label>Name Animation</label>
-              <div class="anim-list">
-                <div class="anim-pick selected" data-anim="typewriter" onclick="selectAnim(this)">Typewriter</div>
-                <div class="anim-pick" data-anim="glitch" onclick="selectAnim(this)">Glitch</div>
-                <div class="anim-pick" data-anim="fade" onclick="selectAnim(this)">Fade In</div>
-                <div class="anim-pick" data-anim="wave" onclick="selectAnim(this)">Wave</div>
-                <div class="anim-pick" data-anim="neon" onclick="selectAnim(this)">Neon Pulse</div>
-                <div class="anim-pick" data-anim="matrix" onclick="selectAnim(this)">Matrix</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Preview -->
-        <div>
-          <div class="preview-float">
-            <div class="preview-title">Live Preview</div>
-            <div class="mini-profile">
-              <div class="mini-header">
-                <img id="mini-avatar" class="mini-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a" alt="">
-                <div>
-                  <div class="mini-name" id="mini-name">VOID_USER</div>
-                  <div class="mini-bio" id="mini-bio">// your bio here</div>
-                </div>
-              </div>
-              <div id="mini-badges" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"></div>
-              <div class="mini-sep"></div>
-              <div class="mini-socials" id="mini-socials">
-                <span class="mini-social">💬 Discord</span>
-                <span class="mini-social">⬡ GitHub</span>
-              </div>
-            </div>
-            <div style="margin-top:14px;font-size:10px;color:var(--muted);text-align:center;letter-spacing:1px;">Changes save instantly</div>
-          </div>
-
-          <!-- Badges -->
-          <div class="section-card" style="margin-top:20px;">
-            <div class="section-title">Badges <span class="premium-badge">FREE PREMIUM</span></div>
-            <div style="font-size:10px;color:var(--muted);margin-bottom:14px;letter-spacing:1px;">Click to toggle. Drag to reorder.</div>
-            <div class="badge-grid" id="badge-picker">
-              <!-- injected by JS -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: BACKGROUND -->
-    <div class="tab-content" id="tab-background">
-      <div class="cust-grid">
-        <div>
-          <div class="section-card" style="margin-bottom:20px;">
-            <div class="section-title">Upload Custom Background <span class="premium-badge">FREE PREMIUM</span></div>
-            <div class="bg-upload-area" id="bg-upload-area">
-              <input type="file" id="bg-file" accept="image/*,video/*" onchange="handleBgUpload(event)">
-              <div style="font-size:32px;">🌅</div>
-              <div style="font-size:13px;color:var(--text);">Drop image or video here</div>
-              <div style="font-size:10px;color:var(--muted);">JPG, PNG, GIF, MP4, WEBM — anything goes</div>
-            </div>
-            <img id="bg-preview-img" class="bg-preview" alt="Background preview">
-            <video id="bg-preview-vid" class="bg-preview" style="display:none;" muted loop autoplay></video>
-          </div>
-
-          <!-- Video themes -->
-          <div class="section-card">
-            <div class="section-title">Built-in Video Themes</div>
-            <div class="theme-grid">
-              <div class="theme-opt selected" data-video="assets/background.mp4" onclick="selectVideoBg(this)">
-                <div class="theme-swatch" style="background:linear-gradient(135deg,#00CED1,#FF6B9E);"></div>
-                <div class="theme-name">DEFAULT</div>
-              </div>
-              <div class="theme-opt" data-video="assets/hacker_background.mp4" onclick="selectVideoBg(this)">
-                <div class="theme-swatch" style="background:linear-gradient(135deg,#22C55E,#2DD4BF);"></div>
-                <div class="theme-name">HACKER</div>
-              </div>
-              <div class="theme-opt" data-video="assets/rain_background.mp4" onclick="selectVideoBg(this)">
-                <div class="theme-swatch" style="background:linear-gradient(135deg,#1E3A8A,#2563EB);"></div>
-                <div class="theme-name">RAIN</div>
-              </div>
-              <div class="theme-opt" data-video="assets/anime_background.mp4" onclick="selectVideoBg(this)">
-                <div class="theme-swatch" style="background:linear-gradient(135deg,#DC2626,#F87171);"></div>
-                <div class="theme-name">ANIME</div>
-              </div>
-              <div class="theme-opt" data-video="assets/car_background.mp4" onclick="selectVideoBg(this)">
-                <div class="theme-swatch" style="background:linear-gradient(135deg,#EAB308,#FACC15);"></div>
-                <div class="theme-name">GOLD</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="section-card" style="margin-bottom:20px;">
-            <div class="section-title">Background Filters <span class="premium-badge">FREE PREMIUM</span></div>
-            <div class="input-group">
-              <label>Blur</label>
-              <input type="range" id="bg-blur" min="0" max="20" value="0" style="width:100%;accent-color:var(--primary);" oninput="updateBgFilter()">
-            </div>
-            <div class="input-group">
-              <label>Brightness</label>
-              <input type="range" id="bg-bright" min="20" max="150" value="55" style="width:100%;accent-color:var(--primary);" oninput="updateBgFilter()">
-            </div>
-            <div class="input-group">
-              <label>Saturate</label>
-              <input type="range" id="bg-sat" min="0" max="300" value="100" style="width:100%;accent-color:var(--primary);" oninput="updateBgFilter()">
-            </div>
-          </div>
-
-          <div class="section-card">
-            <div class="section-title">Overlay Color <span class="premium-badge">FREE PREMIUM</span></div>
-            <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Color tint over background</div>
-            <div class="color-row">
-              <div class="color-option active" style="background:#00CED1;" data-overlay="rgba(0,206,209,0.2)" onclick="selectOverlay(this)"></div>
-              <div class="color-option" style="background:#FF6B9E;" data-overlay="rgba(255,107,158,0.2)" onclick="selectOverlay(this)"></div>
-              <div class="color-option" style="background:#22C55E;" data-overlay="rgba(34,197,94,0.2)" onclick="selectOverlay(this)"></div>
-              <div class="color-option" style="background:#6366F1;" data-overlay="rgba(99,102,241,0.2)" onclick="selectOverlay(this)"></div>
-              <div class="color-option" style="background:#FACC15;" data-overlay="rgba(250,204,21,0.2)" onclick="selectOverlay(this)"></div>
-              <div class="color-option" style="background:#EF4444;" data-overlay="rgba(239,68,68,0.2)" onclick="selectOverlay(this)"></div>
-              <div class="color-option" style="background:transparent;border:1px solid var(--border);" data-overlay="transparent" onclick="selectOverlay(this)">✕</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: STYLE -->
-    <div class="tab-content" id="tab-style">
-      <div class="cust-grid">
-        <div>
-          <div class="section-card" style="margin-bottom:20px;">
-            <div class="section-title">Color Theme <span class="premium-badge">FREE PREMIUM</span></div>
-            <div class="theme-grid" style="margin-bottom:18px;">
-              <div class="theme-opt selected" data-theme="default" onclick="selectTheme(this)">
-                <div class="theme-swatch" style="background:linear-gradient(135deg,#00CED1,#FF6B9E);"></div>
-                <div class="theme-name">VOID</div>
-              </div>
-              <div class="theme-opt" data-theme="hacker" onclick="selectTheme(this)">
-                <div class="theme-swatch" style="background:linear-gradient(135deg,#22C55E,#2DD4BF);"></div>
-                <div class="theme-name">HACKER</div>
-              </div>
-              <div class="theme-opt" data-theme="rain" onclick="selectTheme(this)">
-                <div class="theme-swatch" style="background:linear-gradient(135deg,#3B82F6,#6366F1);"></div>
-                <div class="theme-name">RAIN</div>
-              </div>
-              <div class="theme-opt" data-theme="anime" onclick="selectTheme(this)">
-                <div class="theme-swatch" style="background:linear-gradient(135deg,#EF4444,#F97316);"></div>
-                <div class="theme-name">ANIME</div>
-              </div>
-              <div class="theme-opt" data-theme="gold" onclick="selectTheme(this)">
-                <div class="theme-swatch" style="background:linear-gradient(135deg,#EAB308,#FACC15);"></div>
-                <div class="theme-name">GOLD</div>
-              </div>
-            </div>
-            <div style="font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:1px;">— OR CUSTOM COLORS —</div>
-            <div style="display:flex;gap:16px;align-items:center;">
-              <div>
-                <label>Primary</label>
-                <input type="color" id="color-primary" value="#00CED1" oninput="applyCustomColors()">
-              </div>
-              <div>
-                <label>Secondary</label>
-                <input type="color" id="color-secondary" value="#FF6B9E" oninput="applyCustomColors()">
-              </div>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <div class="section-title">Font Style <span class="premium-badge">FREE PREMIUM</span></div>
-            <div class="font-list">
-              <div class="font-pick selected" data-font="'Space Mono',monospace" onclick="selectFont(this)" style="font-family:'Space Mono',monospace;">Space Mono</div>
-              <div class="font-pick" data-font="'Orbitron',sans-serif" onclick="selectFont(this)" style="font-family:'Orbitron',sans-serif;">Orbitron</div>
-              <div class="font-pick" data-font="'Syne',sans-serif" onclick="selectFont(this)" style="font-family:'Syne',sans-serif;">Syne</div>
-              <div class="font-pick" data-font="monospace" onclick="selectFont(this)" style="font-family:monospace;">Monospace</div>
-              <div class="font-pick" data-font="serif" onclick="selectFont(this)" style="font-family:serif;">Serif</div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="section-card" style="margin-bottom:20px;">
-            <div class="section-title">Card Style <span class="premium-badge">FREE PREMIUM</span></div>
-            <div class="input-group">
-              <label>Card Transparency</label>
-              <input type="range" id="card-opacity" min="0.2" max="1" step="0.05" value="0.85" style="width:100%;accent-color:var(--primary);" oninput="updateCardStyle()">
-            </div>
-            <div class="input-group">
-              <label>Border Radius</label>
-              <input type="range" id="card-radius" min="0" max="32" value="20" style="width:100%;accent-color:var(--primary);" oninput="updateCardStyle()">
-            </div>
-            <div class="input-group">
-              <label>Glow Intensity</label>
-              <input type="range" id="glow-intensity" min="0" max="100" value="30" style="width:100%;accent-color:var(--primary);" oninput="updateCardStyle()">
-            </div>
-          </div>
-
-          <div class="section-card">
-            <div class="section-title">Profile Layout <span class="premium-badge">FREE PREMIUM</span></div>
-            <div class="layout-grid">
-              <div class="layout-opt selected" data-layout="side" onclick="selectLayout(this)">
-                <div class="layout-preview">
-                  <div class="lp-circle"></div>
-                  <div style="flex:1;display:flex;flex-direction:column;gap:4px;padding:4px;">
-                    <div class="lp-bar" style="width:80%;"></div>
-                    <div class="lp-bar" style="width:60%;"></div>
-                  </div>
-                </div>
-                <div class="layout-name">CLASSIC</div>
-              </div>
-              <div class="layout-opt" data-layout="center" onclick="selectLayout(this)">
-                <div class="layout-preview" style="flex-direction:column;gap:4px;">
-                  <div class="lp-circle"></div>
-                  <div class="lp-bar" style="width:70%;align-self:center;"></div>
-                </div>
-                <div class="layout-name">CENTERED</div>
-              </div>
-              <div class="layout-opt" data-layout="banner" onclick="selectLayout(this)">
-                <div class="layout-preview" style="flex-direction:column;padding:4px;">
-                  <div class="lp-bar" style="width:100%;height:16px;margin-bottom:4px;"></div>
-                  <div class="lp-bar" style="width:60%;"></div>
-                </div>
-                <div class="layout-name">BANNER</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: EFFECTS -->
-    <div class="tab-content" id="tab-effects">
-      <div class="cust-grid">
-        <div>
-          <div class="section-card" style="margin-bottom:20px;">
-            <div class="section-title">Cursor Effect <span class="premium-badge">FREE PREMIUM</span></div>
-            <div class="effect-grid">
-              <div class="effect-opt selected" data-effect="default" onclick="selectEffect(this)">
-                <div class="effect-icon">🎯</div>
-                <div class="effect-name">DEFAULT</div>
-              </div>
-              <div class="effect-opt" data-effect="trail" onclick="selectEffect(this)">
-                <div class="effect-icon">✨</div>
-                <div class="effect-name">SPARKLE TRAIL</div>
-              </div>
-              <div class="effect-opt" data-effect="matrix" onclick="selectEffect(this)">
-                <div class="effect-icon">🟢</div>
-                <div class="effect-name">MATRIX RAIN</div>
-              </div>
-              <div class="effect-opt" data-effect="fire" onclick="selectEffect(this)">
-                <div class="effect-icon">🔥</div>
-                <div class="effect-name">FIRE TRAIL</div>
-              </div>
-              <div class="effect-opt" data-effect="snow" onclick="selectEffect(this)">
-                <div class="effect-icon">❄️</div>
-                <div class="effect-name">SNOWFLAKES</div>
-              </div>
-              <div class="effect-opt" data-effect="hearts" onclick="selectEffect(this)">
-                <div class="effect-icon">💜</div>
-                <div class="effect-name">HEARTS</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <div class="section-title">Page Effects <span class="premium-badge">FREE PREMIUM</span></div>
-            <div style="display:flex;flex-direction:column;gap:12px;">
-              <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
-                <span style="font-size:12px;">Particle Background</span>
-                <input type="checkbox" id="fx-particles" checked style="accent-color:var(--primary);width:16px;height:16px;">
-              </label>
-              <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
-                <span style="font-size:12px;">Scanlines Overlay</span>
-                <input type="checkbox" id="fx-scanlines" checked style="accent-color:var(--primary);width:16px;height:16px;">
-              </label>
-              <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
-                <span style="font-size:12px;">Glitch on Hover</span>
-                <input type="checkbox" id="fx-glitch" checked style="accent-color:var(--primary);width:16px;height:16px;">
-              </label>
-              <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
-                <span style="font-size:12px;">3D Card Tilt</span>
-                <input type="checkbox" id="fx-tilt" checked style="accent-color:var(--primary);width:16px;height:16px;">
-              </label>
-              <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
-                <span style="font-size:12px;">Avatar Orbit Ring</span>
-                <input type="checkbox" id="fx-orbit" checked style="accent-color:var(--primary);width:16px;height:16px;">
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="section-card" style="margin-bottom:20px;">
-            <div class="section-title">Background Music <span class="premium-badge">FREE PREMIUM</span></div>
-            <div class="input-group">
-              <label>Music URL (MP3/OGG direct link)</label>
-              <div class="music-url-row">
-                <input type="url" id="music-url" placeholder="https://example.com/music.mp3">
-                <button class="icon-btn" onclick="testMusic()" title="Test">▶</button>
-              </div>
-              <div class="input-hint">Use a direct audio file URL. Supports MP3, OGG, WAV.</div>
-            </div>
-            <div class="input-group">
-              <label>Default Volume</label>
-              <input type="range" id="default-vol" min="0" max="1" step="0.05" value="0.3" style="width:100%;accent-color:var(--primary);">
-            </div>
-          </div>
-
-          <div class="section-card">
-            <div class="section-title">Start Screen <span class="premium-badge">FREE PREMIUM</span></div>
-            <div class="input-group">
-              <label>Start Screen Text</label>
-              <input type="text" id="start-text" placeholder="— CLICK TO ENTER —" maxlength="40">
-            </div>
-            <div class="input-group">
-              <label>Start Screen Style</label>
-              <select id="start-style">
-                <option value="minimal">Minimal</option>
-                <option value="logo">Big Logo</option>
-                <option value="matrix">Matrix Rain</option>
-                <option value="glitch">Glitch Intro</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: LINKS & SKILLS -->
-    <div class="tab-content" id="tab-links">
-      <div class="cust-grid">
-        <div>
-          <div class="section-card" style="margin-bottom:20px;">
-            <div class="section-title">Social Links</div>
-            <div id="social-editor">
-              <!-- injected -->
-            </div>
-            <button class="add-btn" onclick="addSocialRow()">+ Add Link</button>
-          </div>
-        </div>
-
-        <div>
-          <div class="section-card">
-            <div class="section-title">Skills & Progress Bars <span class="premium-badge">FREE PREMIUM</span></div>
-            <div id="skills-editor">
-              <!-- injected -->
-            </div>
-            <button class="add-btn" onclick="addSkillRow()">+ Add Skill</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /wrapper -->
-
-  <!-- Save Bar -->
-  <div class="save-bar">
-    <div class="save-status" id="save-status">Unsaved changes</div>
-    <div class="save-actions">
-      <button class="btn-ghost" onclick="resetAll()">Reset to Default</button>
-      <button class="btn-primary" onclick="saveAll()">✓ Save & Apply</button>
-    </div>
+  <!-- ── LAUNCH OVERLAY ── -->
+  <div id="launch-screen">
+    <div class="launch-logo">VOID.BIO</div>
+    <div class="launch-text">BUILDING YOUR PROFILE...</div>
+    <div class="launch-bar"><div class="launch-fill"></div></div>
   </div>
 
-  <script>
-  // ─── STATE ──────────────────────────────────────────────────────────────────
-  let state = {
-    name: 'VOID_USER',
-    bio: '// built different.',
-    avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a',
-    avatarData: null,
-    bgImage: null,
-    bgVideo: 'assets/background.mp4',
-    bgBlur: 0, bgBright: 55, bgSat: 100,
-    theme: 'default',
-    primaryColor: '#00CED1',
-    secondaryColor: '#FF6B9E',
-    font: "'Space Mono',monospace",
-    layout: 'side',
-    nameAnim: 'typewriter',
-    cursorEffect: 'default',
-    glowIntensity: 30,
-    cardOpacity: 0.85,
-    cardRadius: 20,
-    fx: { particles:true, scanlines:true, glitch:true, tilt:true, orbit:true },
-    musicUrl: '',
-    defaultVol: 0.3,
-    startText: '— CLICK TO ENTER —',
-    startStyle: 'minimal',
-    socials: [
-      { platform:'Discord', href:'#' },
-      { platform:'GitHub',  href:'#' },
-    ],
-    skills: [
-      { name:'Python', pct:87 },
-      { name:'C++', pct:75 },
-    ],
-    badges: ['⚡','🛡','💎','🔥','✓','🐛'],
-    activeBadges: ['⚡','🛡','💎'],
-    overlayColor: 'rgba(0,206,209,0.2)',
-  };
+  <!-- ════════════════════════════════════════════════════════
+       HERO SECTION
+  ════════════════════════════════════════════════════════ -->
+  <section id="hero">
+    <div class="hero-eyebrow">The guns.lol Killer — Free Forever</div>
+    <div class="hero-logo">VOID<span class="hero-dot"></span>BIO</div>
+    <p class="hero-sub">Build a profile page that actually slaps. Custom backgrounds, animated effects, music, badges — all free. No paywalls. No BS.</p>
+    <div class="hero-pills">
+      <span class="pill hot">✦ Custom BG Upload</span>
+      <span class="pill hot">✦ All Premium Free</span>
+      <span class="pill">Animated Avatars</span>
+      <span class="pill">Music Player</span>
+      <span class="pill">Cursor Effects</span>
+      <span class="pill">Skill Bars</span>
+    </div>
+    <div class="hero-cta">
+      <button class="btn-main" onclick="scrollToEditor()">Start Building →</button>
+      <button class="btn-ghost" onclick="window.open('index.html','_blank')">View Demo</button>
+    </div>
+    <div class="scroll-hint">
+      <span>SCROLL</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
 
+  <!-- ════════════════════════════════════════════════════════
+       FEATURES
+  ════════════════════════════════════════════════════════ -->
+  <section id="features">
+    <div class="section-label">What you get</div>
+    <h2 class="section-title">Everything. <span>For Free.</span></h2>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon">🎨</div>
+        <div class="feat-name">Custom Backgrounds</div>
+        <div class="feat-desc">Upload your own image or video straight from your computer. Animated GIFs too. Or pick from 5 built-in video themes.</div>
+        <span class="feat-tag">PREMIUM FREE</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">✨</div>
+        <div class="feat-name">Cursor Effects</div>
+        <div class="feat-desc">Sparkle trails, fire, matrix rain, snowflakes, hearts. Your cursor becomes part of the vibe.</div>
+        <span class="feat-tag">PREMIUM FREE</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🎵</div>
+        <div class="feat-name">Background Music</div>
+        <div class="feat-desc">Add any music via URL. Visitors hear your vibe the second they click enter. Audio visualizer included.</div>
+        <span class="feat-tag">PREMIUM FREE</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🏅</div>
+        <div class="feat-name">18 Badges</div>
+        <div class="feat-desc">Pick from Owner, Staff, Premium, OG, Verified, Bug Hunter and 12 more. All unlocked, no grinding required.</div>
+        <span class="feat-tag">ALL UNLOCKED</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📊</div>
+        <div class="feat-name">Skill Bars</div>
+        <div class="feat-desc">Animated progress bars for your skills. Add as many as you want with custom names and percentages.</div>
+        <span class="feat-tag">UNLIMITED</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔗</div>
+        <div class="feat-name">Social Links</div>
+        <div class="feat-desc">Discord, GitHub, YouTube, TikTok, Twitch, Steam, Spotify and more. Custom URLs, no restrictions.</div>
+        <span class="feat-tag">10 PLATFORMS</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       EDITOR
+  ════════════════════════════════════════════════════════ -->
+  <section id="editor">
+    <div class="section-label">Profile Builder</div>
+    <h2 class="section-title" style="margin-bottom:48px;">Make It <span>Yours</span></h2>
+
+    <div class="editor-layout">
+
+      <!-- LEFT: Steps -->
+      <div>
+        <!-- Step nav -->
+        <div class="steps-nav">
+          <button class="step-btn active" id="snav-1" onclick="goStep(1)"><span class="step-num">1</span> Identity</button>
+          <button class="step-btn" id="snav-2" onclick="goStep(2)"><span class="step-num">2</span> Avatar & Background</button>
+          <button class="step-btn" id="snav-3" onclick="goStep(3)"><span class="step-num">3</span> Style & Theme</button>
+          <button class="step-btn" id="snav-4" onclick="goStep(4)"><span class="step-num">4</span> Badges & Socials</button>
+          <button class="step-btn" id="snav-5" onclick="goStep(5)"><span class="step-num">5</span> Skills & Music</button>
+          <button class="step-btn" id="snav-6" onclick="goStep(6)"><span class="step-num">6</span> Launch</button>
+        </div>
+
+        <!-- ── STEP 1: Identity ── -->
+        <div class="step-panel active" id="step-1">
+          <div class="panel-title">Who are you?</div>
+          <p class="panel-sub">Set your name and bio. This is what people see first.</p>
+          <div class="field">
+            <label>Display Name</label>
+            <input type="text" id="f-name" placeholder="YOUR_NAME" maxlength="28" oninput="S.name=this.value;updatePreview();">
+          </div>
+          <div class="field">
+            <label>Bio <span id="bio-cc" style="float:right;font-size:10px;color:var(--muted);">0/120</span></label>
+            <textarea id="f-bio" rows="3" placeholder="// say something..." maxlength="120" oninput="S.bio=this.value;document.getElementById('bio-cc').textContent=this.value.length+'/120';updatePreview();"></textarea>
+          </div>
+          <div class="field">
+            <label>Name Animation</label>
+            <div class="sel-grid cols3">
+              <div class="sel-item on" data-anim="typewriter" onclick="pickSel(this,'anim')"><div class="si-icon">⌨️</div><div class="si-name">TYPEWRITER</div></div>
+              <div class="sel-item" data-anim="glitch" onclick="pickSel(this,'anim')"><div class="si-icon">📺</div><div class="si-name">GLITCH</div></div>
+              <div class="sel-item" data-anim="wave" onclick="pickSel(this,'anim')"><div class="si-icon">🌊</div><div class="si-name">WAVE</div></div>
+              <div class="sel-item" data-anim="neon" onclick="pickSel(this,'anim')"><div class="si-icon">💡</div><div class="si-name">NEON</div></div>
+              <div class="sel-item" data-anim="matrix" onclick="pickSel(this,'anim')"><div class="si-icon">🟩</div><div class="si-name">MATRIX</div></div>
+              <div class="sel-item" data-anim="fade" onclick="pickSel(this,'anim')"><div class="si-icon">🌫️</div><div class="si-name">FADE</div></div>
+            </div>
+          </div>
+          <div class="step-nav">
+            <button class="btn-next" onclick="nextStep(1)">Next →</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 2: Avatar & Background ── -->
+        <div class="step-panel" id="step-2">
+          <div class="panel-title">Avatar & Background</div>
+          <p class="panel-sub">Upload your avatar and set the background vibe.</p>
+
+          <div class="field">
+            <label>Profile Picture</label>
+            <div class="avatar-row">
+              <img id="pv-avatar-big" class="avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a" alt="">
+              <div class="upload-zone" id="av-zone">
+                <input type="file" accept="image/*" onchange="handleAvatar(event)">
+                <div class="uz-icon">📸</div>
+                <div class="uz-text">Click to upload</div>
+                <div class="uz-hint">PNG · JPG · GIF (animated ok!)</div>
+              </div>
+            </div>
+            <div class="field-hint" style="margin-top:10px;">Or paste a URL:</div>
+            <input type="url" id="f-avatar-url" placeholder="https://..." style="margin-top:6px;width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:12px;outline:none;" oninput="S.avatar=this.value;S.avatarData=null;updateAvatarPreview();">
+          </div>
+
+          <div class="field">
+            <label>Background</label>
+            <div class="upload-zone" id="bg-zone">
+              <input type="file" accept="image/*,video/*" onchange="handleBg(event)">
+              <div class="uz-icon">🌅</div>
+              <div class="uz-text">Upload image or video</div>
+              <div class="uz-hint">JPG · PNG · GIF · MP4 · WEBM — anything works</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Or choose a built-in theme</label>
+            <div class="sel-grid cols3">
+              <div class="sel-item on" data-bg="default" onclick="pickSel(this,'bg')"><div class="si-icon">🌀</div><div class="si-name">DEFAULT</div></div>
+              <div class="sel-item" data-bg="hacker" onclick="pickSel(this,'bg')"><div class="si-icon">💻</div><div class="si-name">HACKER</div></div>
+              <div class="sel-item" data-bg="rain" onclick="pickSel(this,'bg')"><div class="si-icon">🌧️</div><div class="si-name">RAIN</div></div>
+              <div class="sel-item" data-bg="anime" onclick="pickSel(this,'bg')"><div class="si-icon">⚔️</div><div class="si-name">ANIME</div></div>
+              <div class="sel-item" data-bg="gold" onclick="pickSel(this,'bg')"><div class="si-icon">🏎️</div><div class="si-name">GOLD</div></div>
+              <div class="sel-item" data-bg="none" onclick="pickSel(this,'bg')"><div class="si-icon">⬛</div><div class="si-name">NONE</div></div>
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button class="btn-back" onclick="goStep(1)">← Back</button>
+            <button class="btn-next" onclick="nextStep(2)">Next →</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 3: Style & Theme ── -->
+        <div class="step-panel" id="step-3">
+          <div class="panel-title">Style & Theme</div>
+          <p class="panel-sub">Pick your colors, font, and cursor effect.</p>
+
+          <div class="field">
+            <label>Color Theme</label>
+            <div class="theme-swatches">
+              <div class="swatch on" data-theme="default" style="background:linear-gradient(135deg,#00CED1,#FF6B9E);" onclick="pickTheme(this)" title="Void"></div>
+              <div class="swatch" data-theme="hacker"  style="background:linear-gradient(135deg,#22C55E,#2DD4BF);" onclick="pickTheme(this)" title="Hacker"></div>
+              <div class="swatch" data-theme="rain"    style="background:linear-gradient(135deg,#3B82F6,#6366F1);" onclick="pickTheme(this)" title="Rain"></div>
+              <div class="swatch" data-theme="anime"   style="background:linear-gradient(135deg,#EF4444,#F97316);" onclick="pickTheme(this)" title="Anime"></div>
+              <div class="swatch" data-theme="gold"    style="background:linear-gradient(135deg,#EAB308,#FACC15);" onclick="pickTheme(this)" title="Gold"></div>
+              <div class="swatch" data-theme="void2"   style="background:linear-gradient(135deg,#8B5CF6,#EC4899);" onclick="pickTheme(this)" title="Void II"></div>
+              <div class="swatch" data-theme="ice"     style="background:linear-gradient(135deg,#BAE6FD,#60A5FA);" onclick="pickTheme(this)" title="Ice"></div>
+              <div class="swatch" data-theme="blood"   style="background:linear-gradient(135deg,#7F1D1D,#EF4444);" onclick="pickTheme(this)" title="Blood"></div>
+            </div>
+            <div class="color-custom-row">
+              <label>Custom:</label>
+              <div><label style="font-size:9px;display:block;margin-bottom:4px;">Primary</label><input type="color" value="#00CED1" oninput="S.primaryColor=this.value;applyColors();"></div>
+              <div><label style="font-size:9px;display:block;margin-bottom:4px;">Secondary</label><input type="color" value="#FF6B9E" oninput="S.secondaryColor=this.value;applyColors();"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Cursor Effect</label>
+            <div class="sel-grid cols3">
+              <div class="sel-item on" data-cursor="default" onclick="pickSel(this,'cursor')"><div class="si-icon">🎯</div><div class="si-name">DEFAULT</div></div>
+              <div class="sel-item" data-cursor="sparkle" onclick="pickSel(this,'cursor')"><div class="si-icon">✨</div><div class="si-name">SPARKLE</div></div>
+              <div class="sel-item" data-cursor="fire" onclick="pickSel(this,'cursor')"><div class="si-icon">🔥</div><div class="si-name">FIRE</div></div>
+              <div class="sel-item" data-cursor="snow" onclick="pickSel(this,'cursor')"><div class="si-icon">❄️</div><div class="si-name">SNOW</div></div>
+              <div class="sel-item" data-cursor="hearts" onclick="pickSel(this,'cursor')"><div class="si-icon">💜</div><div class="si-name">HEARTS</div></div>
+              <div class="sel-item" data-cursor="matrix" onclick="pickSel(this,'cursor')"><div class="si-icon">🟩</div><div class="si-name">MATRIX</div></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Card Glow Intensity</label>
+            <div class="range-field">
+              <input type="range" min="0" max="100" value="30" oninput="S.glowIntensity=this.value;document.getElementById('rv-glow').textContent=this.value+'%';">
+              <span class="range-val" id="rv-glow">30%</span>
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button class="btn-back" onclick="goStep(2)">← Back</button>
+            <button class="btn-next" onclick="nextStep(3)">Next →</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 4: Badges & Socials ── -->
+        <div class="step-panel" id="step-4">
+          <div class="panel-title">Badges & Links</div>
+          <p class="panel-sub">Pick your badges and add your social links.</p>
+
+          <div class="field">
+            <label>Badges — click to toggle</label>
+            <div class="badge-grid" id="badge-picker"></div>
+          </div>
+
+          <div class="field" style="margin-top:28px;">
+            <label>Social Links</label>
+            <div id="social-editor"></div>
+            <button class="add-row-btn" onclick="addSocial()">+ Add Link</button>
+          </div>
+
+          <div class="step-nav">
+            <button class="btn-back" onclick="goStep(3)">← Back</button>
+            <button class="btn-next" onclick="nextStep(4)">Next →</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 5: Skills & Music ── -->
+        <div class="step-panel" id="step-5">
+          <div class="panel-title">Skills & Music</div>
+          <p class="panel-sub">Show off your skills and add a vibe soundtrack.</p>
+
+          <div class="field">
+            <label>Skills</label>
+            <div id="skills-editor"></div>
+            <button class="add-row-btn" onclick="addSkill()">+ Add Skill</button>
+          </div>
+
+          <div class="field" style="margin-top:28px;">
+            <label>Background Music URL</label>
+            <input type="url" id="f-music" placeholder="https://example.com/song.mp3" oninput="S.musicUrl=this.value;">
+            <div class="field-hint">Direct MP3/OGG/WAV link. Free host: archive.org</div>
+          </div>
+
+          <div class="field">
+            <label>Start Screen Text</label>
+            <input type="text" id="f-start" placeholder="— CLICK TO ENTER —" maxlength="40" oninput="S.startText=this.value;">
+          </div>
+
+          <div class="step-nav">
+            <button class="btn-back" onclick="goStep(4)">← Back</button>
+            <button class="btn-next" onclick="nextStep(5)">Next →</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 6: Launch ── -->
+        <div class="step-panel" id="step-6">
+          <div class="panel-title">Ready to Launch 🚀</div>
+          <p class="panel-sub">Your profile is set up. Hit the button and your customizations save — then you'll land on your live profile page.</p>
+
+          <div style="background:rgba(0,206,209,.06);border:1px solid rgba(0,206,209,.2);border-radius:14px;padding:22px;margin-bottom:28px;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:2px;">SUMMARY</div>
+            <div id="launch-summary" style="font-size:12px;line-height:2;color:var(--text);"></div>
+          </div>
+
+          <div class="step-nav" style="justify-content:center;">
+            <button class="btn-launch" onclick="launch()">✦ LAUNCH MY PROFILE ✦</button>
+          </div>
+          <div style="text-align:center;margin-top:16px;font-size:10px;color:var(--muted);letter-spacing:2px;">Saves to your browser → opens your profile</div>
+        </div>
+
+      </div><!-- /left -->
+
+      <!-- RIGHT: Live preview -->
+      <div class="preview-wrap">
+        <div class="preview-label">⚡ live preview</div>
+        <div class="preview-card">
+          <div class="pv-header">
+            <img id="pv-avatar" class="pv-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a" alt="">
+            <div style="flex:1;min-width:0;">
+              <div class="pv-name" id="pv-name">VOID_USER</div>
+              <div class="pv-badges" id="pv-badges"></div>
+              <div class="pv-bio" id="pv-bio">// your bio here</div>
+            </div>
+          </div>
+          <div class="pv-sep"></div>
+          <div class="pv-socials" id="pv-socials">
+            <span class="pv-social">💬 Discord</span>
+            <span class="pv-social">⬡ GitHub</span>
+          </div>
+          <div class="pv-skills" id="pv-skills"></div>
+          <img id="pv-bg" class="pv-bg-preview" alt="background preview">
+        </div>
+      </div>
+
+    </div><!-- /editor-layout -->
+  </section>
+
+  <script>
+  // ── CURSOR ─────────────────────────────────────────────────────────────────
+  const cur=document.getElementById('c'),dot=document.getElementById('cd');
+  let mx=0,my=0,cx=0,cy=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+  (function loop(){cx+=(mx-cx)*.14;cy+=(my-cy)*.14;cur.style.left=cx+'px';cur.style.top=cy+'px';requestAnimationFrame(loop);})();
+  document.addEventListener('mousedown',()=>{cur.style.width='10px';cur.style.height='10px';});
+  document.addEventListener('mouseup',()=>{cur.style.width='18px';cur.style.height='18px';});
+
+  // ── STATE ──────────────────────────────────────────────────────────────────
+  const THEMES_MAP = {
+    default:{p:'#00CED1',s:'#FF6B9E'},
+    hacker: {p:'#22C55E',s:'#2DD4BF'},
+    rain:   {p:'#3B82F6',s:'#6366F1'},
+    anime:  {p:'#EF4444',s:'#F97316'},
+    gold:   {p:'#EAB308',s:'#FACC15'},
+    void2:  {p:'#8B5CF6',s:'#EC4899'},
+    ice:    {p:'#BAE6FD',s:'#60A5FA'},
+    blood:  {p:'#7F1D1D',s:'#EF4444'},
+  };
+  const ICONS_MAP = {Discord:'💬',GitHub:'⬡',YouTube:'▶',TikTok:'♪','Twitter/X':'✕',Instagram:'📷',Twitch:'🟣',Steam:'🎮',Spotify:'🎵',Website:'🌐'};
   const ALL_BADGES = [
-    {emoji:'⚡',tip:'Owner'},{emoji:'🛡',tip:'Staff'},{emoji:'💎',tip:'Premium'},
-    {emoji:'🔥',tip:'OG'},{emoji:'✓',tip:'Verified'},{emoji:'🐛',tip:'Bug Hunter'},
-    {emoji:'👑',tip:'Admin'},{emoji:'🎖',tip:'Veteran'},{emoji:'🌟',tip:'Star'},
-    {emoji:'💀',tip:'Banned Others'},{emoji:'🤡',tip:'Clown'},{emoji:'🧠',tip:'Big Brain'},
-    {emoji:'🎮',tip:'Gamer'},{emoji:'🎨',tip:'Artist'},{emoji:'⚔️',tip:'Fighter'},
-    {emoji:'🏆',tip:'Champion'},{emoji:'🦊',tip:'Fox Mode'},{emoji:'😈',tip:'Evil'},
+    {e:'⚡',t:'Owner'},{e:'🛡',t:'Staff'},{e:'💎',t:'Premium'},{e:'🔥',t:'OG'},
+    {e:'✓',t:'Verified'},{e:'🐛',t:'Bug Hunter'},{e:'👑',t:'Admin'},{e:'🎖',t:'Veteran'},
+    {e:'🌟',t:'Star'},{e:'💀',t:'Banned Others'},{e:'🧠',t:'Big Brain'},{e:'🎮',t:'Gamer'},
+    {e:'🎨',t:'Artist'},{e:'⚔️',t:'Fighter'},{e:'🏆',t:'Champion'},{e:'🦊',t:'Fox Mode'},
+    {e:'😈',t:'Evil'},{e:'🤡',t:'Clown'},
   ];
 
-  const SOCIAL_PLATFORMS = ['Discord','GitHub','YouTube','TikTok','Twitter/X','Instagram','Twitch','Steam','Spotify','Website'];
+  let S = {
+    name:'', bio:'', avatar:'https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a',
+    avatarData:null, bgImage:null, bgTheme:'default',
+    theme:'default', primaryColor:'#00CED1', secondaryColor:'#FF6B9E',
+    nameAnim:'typewriter', cursorEffect:'default', glowIntensity:30,
+    activeBadges:['⚡','🛡','💎'],
+    socials:[{platform:'Discord',href:''},{platform:'GitHub',href:''}],
+    skills:[{name:'Python',pct:87},{name:'C++',pct:75}],
+    musicUrl:'', startText:'— CLICK TO ENTER —',
+  };
 
-  // ─── CURSOR ─────────────────────────────────────────────────────────────────
-  const cur=document.getElementById('cursor'), dot=document.getElementById('cursor-dot');
-  let mx=0,my=0,cx=0,cy=0;
-  document.addEventListener('mousemove',(e)=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
-  (function animCursor(){cx+=(mx-cx)*0.15;cy+=(my-cy)*0.15;cur.style.left=cx+'px';cur.style.top=cy+'px';requestAnimationFrame(animCursor);})();
-
-  // ─── TABS ────────────────────────────────────────────────────────────────────
-  function switchTab(name){
-    document.querySelectorAll('.tab').forEach((t,i)=>{
-      const tabs=['identity','background','style','effects','links'];
-      t.classList.toggle('active',tabs[i]===name);
+  // ── STEPS ──────────────────────────────────────────────────────────────────
+  let currentStep = 1;
+  function goStep(n) {
+    document.querySelectorAll('.step-panel').forEach((p,i)=>p.classList.toggle('active',i+1===n));
+    document.querySelectorAll('.step-btn').forEach((b,i)=>{
+      b.classList.toggle('active',i+1===n);
+      if(i+1<n) b.classList.add('done'); else b.classList.remove('done');
     });
-    document.querySelectorAll('.tab-content').forEach(c=>{
-      c.classList.toggle('active',c.id==='tab-'+name);
-    });
+    currentStep = n;
+    if(n===6) buildSummary();
+  }
+  function nextStep(n) { goStep(n+1); document.getElementById('editor').scrollIntoView({behavior:'smooth'}); }
+  function scrollToEditor() { document.getElementById('editor').scrollIntoView({behavior:'smooth'}); }
+
+  // ── SELECTORS ──────────────────────────────────────────────────────────────
+  function pickSel(el, group) {
+    el.closest('.sel-grid').querySelectorAll('.sel-item').forEach(e=>e.classList.remove('on'));
+    el.classList.add('on');
+    if(group==='anim')   S.nameAnim      = el.dataset.anim;
+    if(group==='cursor') S.cursorEffect  = el.dataset.cursor;
+    if(group==='bg')   { S.bgTheme = el.dataset.bg; S.bgImage = null; }
   }
 
-  // ─── INIT ─────────────────────────────────────────────────────────────────
-  function init(){
-    // Load saved
-    const saved=JSON.parse(localStorage.getItem('void_custom')||'{}');
-    Object.assign(state, saved);
-
-    // Populate fields
-    document.getElementById('edit-name').value = state.name || '';
-    document.getElementById('edit-bio').value = state.bio || '';
-    document.getElementById('avatar-url').value = (!state.avatarData && state.avatar) ? state.avatar : '';
-    if(state.avatarData){
-      document.getElementById('avatar-preview').src = state.avatarData;
-      document.getElementById('mini-avatar').src = state.avatarData;
-    } else if(state.avatar){
-      document.getElementById('avatar-preview').src = state.avatar;
-      document.getElementById('mini-avatar').src = state.avatar;
-    }
-    document.getElementById('color-primary').value = state.primaryColor || '#00CED1';
-    document.getElementById('color-secondary').value = state.secondaryColor || '#FF6B9E';
-    document.getElementById('card-opacity').value = state.cardOpacity || 0.85;
-    document.getElementById('card-radius').value = state.cardRadius || 20;
-    document.getElementById('glow-intensity').value = state.glowIntensity || 30;
-    document.getElementById('bg-blur').value = state.bgBlur || 0;
-    document.getElementById('bg-bright').value = state.bgBright || 55;
-    document.getElementById('bg-sat').value = state.bgSat || 100;
-    document.getElementById('music-url').value = state.musicUrl || '';
-    document.getElementById('default-vol').value = state.defaultVol || 0.3;
-    document.getElementById('start-text').value = state.startText || '— CLICK TO ENTER —';
-    if(state.startStyle) document.getElementById('start-style').value = state.startStyle;
-
-    // badges
-    buildBadgePicker();
-    // socials
-    renderSocialEditor();
-    // skills
-    renderSkillEditor();
-    // update preview
-    updatePreview();
-    updateBioCounter();
-
-    // select correct theme/font/layout/etc
-    document.querySelectorAll('[data-theme]').forEach(el=>el.classList.toggle('selected',el.dataset.theme===state.theme));
-    document.querySelectorAll('[data-font]').forEach(el=>el.classList.toggle('selected',el.dataset.font===state.font));
-    document.querySelectorAll('[data-layout]').forEach(el=>el.classList.toggle('selected',el.dataset.layout===state.layout));
-    document.querySelectorAll('[data-anim]').forEach(el=>el.classList.toggle('selected',el.dataset.anim===state.nameAnim));
-    document.querySelectorAll('[data-effect]').forEach(el=>el.classList.toggle('selected',el.dataset.effect===state.cursorEffect));
-    document.querySelectorAll('[data-video]').forEach(el=>el.classList.toggle('selected',el.dataset.video===state.bgVideo));
-
-    // effects checkboxes
-    if(state.fx){
-      document.getElementById('fx-particles').checked = state.fx.particles !== false;
-      document.getElementById('fx-scanlines').checked = state.fx.scanlines !== false;
-      document.getElementById('fx-glitch').checked = state.fx.glitch !== false;
-      document.getElementById('fx-tilt').checked = state.fx.tilt !== false;
-      document.getElementById('fx-orbit').checked = state.fx.orbit !== false;
-    }
+  function pickTheme(el) {
+    document.querySelectorAll('.swatch').forEach(e=>e.classList.remove('on'));
+    el.classList.add('on');
+    S.theme = el.dataset.theme;
+    const t = THEMES_MAP[S.theme]||THEMES_MAP.default;
+    S.primaryColor = t.p; S.secondaryColor = t.s;
+    applyColors();
   }
 
-  // ─── BIO COUNTER ─────────────────────────────────────────────────────────
-  document.getElementById('edit-bio').addEventListener('input',updateBioCounter);
-  function updateBioCounter(){
-    const v=document.getElementById('edit-bio').value.length;
-    document.getElementById('bio-counter').textContent=v+'/120';
+  function applyColors() {
+    document.documentElement.style.setProperty('--p', S.primaryColor);
+    document.documentElement.style.setProperty('--s', S.secondaryColor);
+    document.documentElement.style.setProperty('--border', S.primaryColor+'33');
   }
 
-  // ─── PREVIEW ─────────────────────────────────────────────────────────────
-  function updatePreview(){
-    document.getElementById('mini-name').textContent = document.getElementById('edit-name').value || 'VOID_USER';
-    document.getElementById('mini-bio').textContent = document.getElementById('edit-bio').value || '// your bio here';
-    state.name = document.getElementById('edit-name').value;
-    state.bio = document.getElementById('edit-bio').value;
-  }
-
-  // ─── AVATAR ───────────────────────────────────────────────────────────────
-  function handleAvatarUpload(e){
-    const file=e.target.files[0]; if(!file) return;
-    const reader=new FileReader();
-    reader.onload=ev=>{
-      state.avatarData = ev.target.result;
-      document.getElementById('avatar-preview').src = ev.target.result;
-      document.getElementById('mini-avatar').src = ev.target.result;
+  // ── AVATAR ─────────────────────────────────────────────────────────────────
+  function handleAvatar(e) {
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      S.avatarData = ev.target.result;
+      S.avatar = null;
+      updateAvatarPreview();
+      document.getElementById('av-zone').classList.add('has-file');
     };
     reader.readAsDataURL(file);
   }
-  function updateAvatarFromUrl(){
-    const url=document.getElementById('avatar-url').value;
-    if(url){ state.avatar=url; state.avatarData=null; document.getElementById('avatar-preview').src=url; document.getElementById('mini-avatar').src=url; }
+  function updateAvatarPreview() {
+    const src = S.avatarData || S.avatar || '';
+    document.getElementById('pv-avatar').src = src;
+    document.getElementById('pv-avatar-big').src = src;
   }
 
-  // ─── BG UPLOAD ───────────────────────────────────────────────────────────
-  function handleBgUpload(e){
-    const file=e.target.files[0]; if(!file) return;
-    const reader=new FileReader();
-    reader.onload=ev=>{
-      state.bgImage=ev.target.result;
-      state.bgVideo=null;
-      if(file.type.startsWith('video/')){
-        const vid=document.getElementById('bg-preview-vid');
-        vid.src=ev.target.result; vid.style.display='block';
-        document.getElementById('bg-preview-img').style.display='none';
+  // ── BACKGROUND ─────────────────────────────────────────────────────────────
+  function handleBg(e) {
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      S.bgImage = ev.target.result;
+      S.bgTheme = null;
+      // deselect built-in
+      document.querySelectorAll('[data-bg]').forEach(el=>el.classList.remove('on'));
+      // show preview
+      const pv = document.getElementById('pv-bg');
+      if(file.type.startsWith('video/')) {
+        pv.style.display='none';
       } else {
-        const img=document.getElementById('bg-preview-img');
-        img.src=ev.target.result; img.style.display='block';
-        document.getElementById('bg-preview-vid').style.display='none';
+        pv.src = ev.target.result; pv.style.display='block';
       }
-      // deselect video themes
-      document.querySelectorAll('[data-video]').forEach(el=>el.classList.remove('selected'));
+      document.getElementById('bg-zone').classList.add('has-file');
     };
     reader.readAsDataURL(file);
   }
 
-  function selectVideoBg(el){
-    document.querySelectorAll('[data-video]').forEach(e=>e.classList.remove('selected'));
-    el.classList.add('selected');
-    state.bgVideo = el.dataset.video;
-    state.bgImage = null;
-    document.getElementById('bg-preview-img').style.display='none';
-    document.getElementById('bg-preview-vid').style.display='none';
-  }
-
-  function updateBgFilter(){
-    state.bgBlur = document.getElementById('bg-blur').value;
-    state.bgBright = document.getElementById('bg-bright').value;
-    state.bgSat = document.getElementById('bg-sat').value;
-  }
-
-  // ─── OVERLAY ─────────────────────────────────────────────────────────────
-  function selectOverlay(el){
-    document.querySelectorAll('.color-option').forEach(e=>e.classList.remove('active'));
-    el.classList.add('active');
-    state.overlayColor = el.dataset.overlay;
-  }
-
-  // ─── THEME ───────────────────────────────────────────────────────────────
-  function selectTheme(el){
-    document.querySelectorAll('[data-theme]').forEach(e=>e.classList.remove('selected'));
-    el.classList.add('selected');
-    state.theme = el.dataset.theme;
-  }
-  function applyCustomColors(){
-    state.primaryColor = document.getElementById('color-primary').value;
-    state.secondaryColor = document.getElementById('color-secondary').value;
-    document.documentElement.style.setProperty('--primary', state.primaryColor);
-    document.documentElement.style.setProperty('--secondary', state.secondaryColor);
-    document.documentElement.style.setProperty('--border', state.primaryColor+'33');
-  }
-
-  // ─── FONT ────────────────────────────────────────────────────────────────
-  function selectFont(el){
-    document.querySelectorAll('[data-font]').forEach(e=>e.classList.remove('selected'));
-    el.classList.add('selected'); state.font=el.dataset.font;
-  }
-
-  // ─── LAYOUT ──────────────────────────────────────────────────────────────
-  function selectLayout(el){
-    document.querySelectorAll('[data-layout]').forEach(e=>e.classList.remove('selected'));
-    el.classList.add('selected'); state.layout=el.dataset.layout;
-  }
-
-  // ─── ANIM ─────────────────────────────────────────────────────────────────
-  function selectAnim(el){
-    document.querySelectorAll('[data-anim]').forEach(e=>e.classList.remove('selected'));
-    el.classList.add('selected'); state.nameAnim=el.dataset.anim;
-  }
-
-  // ─── EFFECTS ─────────────────────────────────────────────────────────────
-  function selectEffect(el){
-    document.querySelectorAll('[data-effect]').forEach(e=>e.classList.remove('selected'));
-    el.classList.add('selected'); state.cursorEffect=el.dataset.effect;
-  }
-
-  // ─── CARD STYLE ──────────────────────────────────────────────────────────
-  function updateCardStyle(){
-    state.cardOpacity = document.getElementById('card-opacity').value;
-    state.cardRadius = document.getElementById('card-radius').value;
-    state.glowIntensity = document.getElementById('glow-intensity').value;
-  }
-
-  // ─── BADGES ──────────────────────────────────────────────────────────────
-  function buildBadgePicker(){
-    const cont=document.getElementById('badge-picker');
-    cont.innerHTML='';
-    ALL_BADGES.forEach(b=>{
-      const el=document.createElement('div');
-      el.className='badge-pick'+(state.activeBadges&&state.activeBadges.includes(b.emoji)?' selected':'');
-      el.innerHTML=`${b.emoji}<span class="badge-label">${b.tip}</span>`;
-      el.onclick=()=>{
-        el.classList.toggle('selected');
-        const sel=Array.from(document.querySelectorAll('.badge-pick.selected')).map(e=>e.textContent.trim().split('\n')[0]);
-        state.activeBadges=sel;
-        // update preview
-        const mr=document.getElementById('mini-badges');
-        mr.innerHTML=sel.map(e=>`<span style="font-size:16px;">${e}</span>`).join('');
+  // ── BADGES ─────────────────────────────────────────────────────────────────
+  function buildBadgePicker() {
+    const cont = document.getElementById('badge-picker');
+    cont.innerHTML = '';
+    ALL_BADGES.forEach(b => {
+      const el = document.createElement('div');
+      el.className = 'badge-opt' + (S.activeBadges.includes(b.e) ? ' on' : '');
+      el.innerHTML = `${b.e}<span class="badge-tip">${b.t}</span>`;
+      el.onclick = () => {
+        el.classList.toggle('on');
+        S.activeBadges = Array.from(document.querySelectorAll('.badge-opt.on')).map(x=>x.textContent.trim().replace(/\n.*/,''));
+        updatePreview();
       };
       cont.appendChild(el);
     });
-    // init preview
-    const mr=document.getElementById('mini-badges');
-    if(state.activeBadges) mr.innerHTML=state.activeBadges.map(e=>`<span style="font-size:16px;">${e}</span>`).join('');
   }
 
-  // ─── SOCIALS ──────────────────────────────────────────────────────────────
-  function renderSocialEditor(){
-    const cont=document.getElementById('social-editor');
-    cont.innerHTML='';
-    (state.socials||[]).forEach((s,i)=>{ cont.appendChild(makeSocialRow(s,i)); });
-    updateMiniSocials();
+  // ── SOCIALS ────────────────────────────────────────────────────────────────
+  function renderSocials() {
+    const cont = document.getElementById('social-editor'); cont.innerHTML='';
+    S.socials.forEach((s,i)=>{
+      const row = document.createElement('div'); row.className='social-row';
+      const sel = document.createElement('select');
+      sel.innerHTML=['Discord','GitHub','YouTube','TikTok','Twitter/X','Instagram','Twitch','Steam','Spotify','Website'].map(p=>`<option${p===s.platform?' selected':''}>${p}</option>`).join('');
+      sel.onchange=()=>{S.socials[i].platform=sel.value;updatePreview();};
+      const inp=document.createElement('input'); inp.type='url'; inp.placeholder='https://...'; inp.value=s.href||'';
+      inp.oninput=()=>S.socials[i].href=inp.value;
+      const del=document.createElement('button'); del.className='del-btn'; del.textContent='✕';
+      del.onclick=()=>{S.socials.splice(i,1);renderSocials();updatePreview();};
+      row.appendChild(sel); row.appendChild(inp); row.appendChild(del);
+      cont.appendChild(row);
+    });
+    updatePreview();
   }
-  function makeSocialRow(s,i){
-    const row=document.createElement('div');
-    row.className='social-row';
-    const sel=document.createElement('select');
-    SOCIAL_PLATFORMS.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=p; if(p===s.platform) o.selected=true; sel.appendChild(o); });
-    sel.onchange=()=>{ state.socials[i].platform=sel.value; updateMiniSocials(); };
-    const inp=document.createElement('input');
-    inp.type='url'; inp.placeholder='https://...'; inp.value=s.href||'';
-    inp.oninput=()=>{ state.socials[i].href=inp.value; };
-    const del=document.createElement('button');
-    del.className='icon-btn'; del.textContent='✕';
-    del.onclick=()=>{ state.socials.splice(i,1); renderSocialEditor(); };
-    row.appendChild(sel); row.appendChild(inp); row.appendChild(del);
-    return row;
+  function addSocial(){S.socials.push({platform:'Website',href:''});renderSocials();}
+
+  // ── SKILLS ─────────────────────────────────────────────────────────────────
+  function renderSkills() {
+    const cont=document.getElementById('skills-editor'); cont.innerHTML='';
+    S.skills.forEach((s,i)=>{
+      const row=document.createElement('div'); row.className='skill-edit';
+      const inp=document.createElement('input'); inp.type='text'; inp.value=s.name||''; inp.placeholder='Skill name';
+      inp.oninput=()=>{S.skills[i].name=inp.value;updatePreview();};
+      const range=document.createElement('input'); range.type='range'; range.min=0; range.max=100; range.value=s.pct||50;
+      const pct=document.createElement('div'); pct.className='skill-pct'; pct.textContent=(s.pct||50)+'%';
+      range.oninput=()=>{S.skills[i].pct=parseInt(range.value);pct.textContent=range.value+'%';updatePreview();};
+      const del=document.createElement('button'); del.className='del-btn'; del.textContent='✕';
+      del.onclick=()=>{S.skills.splice(i,1);renderSkills();updatePreview();};
+      row.appendChild(inp); row.appendChild(range); row.appendChild(pct); row.appendChild(del);
+      cont.appendChild(row);
+    });
   }
-  function addSocialRow(){
-    state.socials.push({platform:'Website',href:''});
-    renderSocialEditor();
-  }
-  function updateMiniSocials(){
-    const ms=document.getElementById('mini-socials');
-    const icons={'Discord':'💬','GitHub':'⬡','YouTube':'▶','TikTok':'♪','Twitter/X':'✕','Instagram':'📷','Twitch':'🟣','Steam':'🎮','Spotify':'🎵','Website':'🌐'};
-    ms.innerHTML=(state.socials||[]).map(s=>`<span class="mini-social">${icons[s.platform]||'🔗'} ${s.platform}</span>`).join('');
+  function addSkill(){S.skills.push({name:'New Skill',pct:50});renderSkills();}
+
+  // ── LIVE PREVIEW ───────────────────────────────────────────────────────────
+  function updatePreview() {
+    document.getElementById('pv-name').textContent = S.name || 'VOID_USER';
+    document.getElementById('pv-bio').textContent  = S.bio  || '// your bio here';
+    // badges
+    const pb = document.getElementById('pv-badges');
+    pb.innerHTML = S.activeBadges.map(e=>`<span style="font-size:15px;">${e}</span>`).join('');
+    // socials
+    const ps = document.getElementById('pv-socials');
+    ps.innerHTML = S.socials.map(s=>`<span class="pv-social">${ICONS_MAP[s.platform]||'🔗'} ${s.platform}</span>`).join('');
+    // skills
+    const psk = document.getElementById('pv-skills');
+    psk.innerHTML = S.skills.map(s=>`
+      <div class="pv-skill-row">
+        <div class="pv-skill-info"><span>${s.name}</span><span style="color:var(--p)">${s.pct}%</span></div>
+        <div class="pv-bar"><div class="pv-fill" style="width:${s.pct}%"></div></div>
+      </div>`).join('');
   }
 
-  // ─── SKILLS ───────────────────────────────────────────────────────────────
-  function renderSkillEditor(){
-    const cont=document.getElementById('skills-editor');
-    cont.innerHTML='';
-    (state.skills||[]).forEach((s,i)=>{ cont.appendChild(makeSkillRow(s,i)); });
-  }
-  function makeSkillRow(s,i){
-    const row=document.createElement('div');
-    row.className='skill-edit-row';
-    const inp=document.createElement('input');
-    inp.type='text'; inp.value=s.name||''; inp.placeholder='Skill name';
-    inp.oninput=()=>{ state.skills[i].name=inp.value; };
-    const range=document.createElement('input');
-    range.type='range'; range.min=0; range.max=100; range.value=s.pct||50;
-    const pctEl=document.createElement('div');
-    pctEl.className='skill-pct-display'; pctEl.textContent=(s.pct||50)+'%';
-    range.oninput=()=>{ state.skills[i].pct=parseInt(range.value); pctEl.textContent=range.value+'%'; };
-    const del=document.createElement('button');
-    del.className='icon-btn'; del.textContent='✕';
-    del.onclick=()=>{ state.skills.splice(i,1); renderSkillEditor(); };
-    row.appendChild(inp); row.appendChild(range); row.appendChild(pctEl); row.appendChild(del);
-    return row;
-  }
-  function addSkillRow(){
-    state.skills.push({name:'New Skill',pct:50});
-    renderSkillEditor();
+  // ── SUMMARY ────────────────────────────────────────────────────────────────
+  function buildSummary() {
+    const el=document.getElementById('launch-summary');
+    el.innerHTML=`
+      <div>👤 Name: <b>${S.name||'(not set)'}</b></div>
+      <div>🎨 Theme: <b>${S.theme}</b></div>
+      <div>🖼 Background: <b>${S.bgImage?'Custom upload':S.bgTheme||'None'}</b></div>
+      <div>🏅 Badges: <b>${S.activeBadges.join(' ')}</b></div>
+      <div>🔗 Socials: <b>${S.socials.length} link(s)</b></div>
+      <div>📊 Skills: <b>${S.skills.length} skill(s)</b></div>
+      <div>🎵 Music: <b>${S.musicUrl?'Set':'None'}</b></div>
+    `;
   }
 
-  // ─── MUSIC TEST ───────────────────────────────────────────────────────────
-  function testMusic(){
-    const url=document.getElementById('music-url').value;
-    if(!url) return;
-    const a=new Audio(url); a.volume=0.3;
-    a.play().catch(()=>alert('Could not play audio. Check the URL.'));
-    setTimeout(()=>a.pause(),5000);
-  }
-
-  // ─── SAVE ─────────────────────────────────────────────────────────────────
-  function saveAll(){
-    state.name = document.getElementById('edit-name').value;
-    state.bio = document.getElementById('edit-bio').value;
-    state.musicUrl = document.getElementById('music-url').value;
-    state.defaultVol = document.getElementById('default-vol').value;
-    state.startText = document.getElementById('start-text').value;
-    state.startStyle = document.getElementById('start-style').value;
-    state.fx = {
-      particles: document.getElementById('fx-particles').checked,
-      scanlines: document.getElementById('fx-scanlines').checked,
-      glitch: document.getElementById('fx-glitch').checked,
-      tilt: document.getElementById('fx-tilt').checked,
-      orbit: document.getElementById('fx-orbit').checked,
+  // ── LAUNCH ─────────────────────────────────────────────────────────────────
+  function launch() {
+    // Build final save object
+    const save = {
+      name:         S.name,
+      bio:          S.bio,
+      avatar:       S.avatar,
+      avatarData:   S.avatarData,
+      bgImage:      S.bgImage,
+      bgTheme:      S.bgTheme,
+      theme:        S.theme,
+      primaryColor: S.primaryColor,
+      secondaryColor:S.secondaryColor,
+      nameAnim:     S.nameAnim,
+      cursorEffect: S.cursorEffect,
+      glowIntensity:S.glowIntensity,
+      musicUrl:     S.musicUrl,
+      startText:    S.startText || '— CLICK TO ENTER —',
+      badges: S.activeBadges.map(e=>{ const b=ALL_BADGES.find(x=>x.e===e); return {emoji:e,tip:b?b.t:''}; }),
+      socials: S.socials.map(s=>({platform:s.platform,href:s.href,icon:ICONS_MAP[s.platform]||'🔗'})),
+      skills: S.skills,
     };
 
-    // Build badges array from active badges
-    state.badges = state.activeBadges ? state.activeBadges.map(emoji=>{
-      const b=ALL_BADGES.find(x=>x.emoji===emoji);
-      return { emoji, tip: b?b.tip:'' };
-    }) : [];
+    localStorage.setItem('void_custom', JSON.stringify(save));
 
-    localStorage.setItem('void_custom', JSON.stringify(state));
-    const status=document.getElementById('save-status');
-    status.textContent='✓ Saved!'; status.classList.add('saved');
-    setTimeout(()=>{ status.textContent='Unsaved changes'; status.classList.remove('saved'); },2500);
+    // Launch animation then redirect
+    document.getElementById('launch-screen').classList.add('show');
+    setTimeout(()=>{ window.location.href = 'index.html'; }, 2000);
   }
 
-  function resetAll(){
-    if(!confirm('Reset all customizations to default?')) return;
-    localStorage.removeItem('void_custom');
-    location.reload();
-  }
-
-  // ─── KICK OFF ────────────────────────────────────────────────────────────
-  init();
+  // ── INIT ───────────────────────────────────────────────────────────────────
+  buildBadgePicker();
+  renderSocials();
+  renderSkills();
+  updatePreview();
   </script>
 </body>
 </html>
