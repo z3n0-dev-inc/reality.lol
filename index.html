@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>void.bio — Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00CED1;
+      --secondary: #FF6B9E;
+      --bg: #08080F;
+      --card: rgba(10,10,25,0.85);
+      --text: #E0E0FF;
+      --muted: rgba(224,224,255,0.5);
+      --border: rgba(0,206,209,0.25);
+      --glow: 0 0 30px rgba(0,206,209,0.3);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Space Mono',monospace; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; cursor:none; }
+
+    #cursor { position:fixed; width:20px; height:20px; border-radius:50%; border:2px solid var(--primary); pointer-events:none; z-index:99999; transform:translate(-50%,-50%); mix-blend-mode:difference; transition:width .15s,height .15s; }
+    #cursor-dot { position:fixed; width:5px; height:5px; border-radius:50%; background:var(--primary); pointer-events:none; z-index:99999; transform:translate(-50%,-50%); }
+
+    #bg-layer { position:fixed; inset:0; z-index:0; background:#08080F; }
+    #bg-layer video, #bg-layer img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.55; }
+    #bg-overlay { position:fixed; inset:0; z-index:1; pointer-events:none; background:radial-gradient(ellipse at center,transparent 20%,#08080F 100%); }
+    .scanlines { position:fixed; inset:0; z-index:2; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px); }
+    #particles { position:fixed; inset:0; z-index:2; pointer-events:none; }
+
+    #start-screen { position:fixed; inset:0; z-index:1000; background:#08080F; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; gap:14px; }
+    #start-screen .logo { font-family:'Orbitron',sans-serif; font-size:64px; font-weight:900; background:linear-gradient(135deg,var(--primary),var(--secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:6px; animation:pulse 2s ease-in-out infinite; }
+    #start-screen .sub { font-size:12px; color:var(--muted); letter-spacing:4px; }
+    #start-screen .hint { font-size:11px; color:var(--muted); letter-spacing:3px; border:1px solid var(--border); padding:10px 28px; border-radius:30px; margin-top:16px; animation:blink 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.5;} }
+    @keyframes blink  { 0%,100%{opacity:1;} 50%{opacity:.2;} }
+    #start-screen.gone { display:none; }
+
+    .page { position:relative; z-index:10; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; gap:16px; }
+
+    #profile-card { width:100%; max-width:680px; background:var(--card); border:1px solid var(--border); border-radius:20px; padding:28px; backdrop-filter:blur(20px); box-shadow:var(--glow),0 25px 60px rgba(0,0,0,.6); transform-style:preserve-3d; opacity:0; animation:cardIn .7s ease-out .1s forwards; }
+    #skills-card  { width:100%; max-width:680px; background:var(--card); border:1px solid var(--border); border-radius:20px; padding:24px; backdrop-filter:blur(20px); box-shadow:var(--glow),0 25px 60px rgba(0,0,0,.6); opacity:0; animation:cardIn .7s ease-out .3s forwards; }
+    @keyframes cardIn { from{opacity:0;transform:translateY(24px) scale(.97);} to{opacity:1;transform:translateY(0) scale(1);} }
+
+    .profile-header { display:flex; align-items:flex-start; gap:22px; margin-bottom:18px; }
+    .avatar-wrap { position:relative; flex-shrink:0; width:110px; height:110px; }
+    .avatar-ring { position:absolute; inset:-4px; border-radius:50%; background:conic-gradient(var(--primary),var(--secondary),var(--primary)); animation:spin 4s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg);} }
+    #avatar-img { position:relative; z-index:1; width:110px; height:110px; border-radius:50%; object-fit:cover; background:#111; display:block; }
+    .avatar-status { position:absolute; bottom:4px; right:4px; z-index:2; width:16px; height:16px; border-radius:50%; background:#22C55E; border:2px solid var(--bg); box-shadow:0 0 8px #22C55E; }
+
+    .profile-meta { flex:1; min-width:0; }
+    #profile-name { font-family:'Orbitron',sans-serif; font-weight:900; font-size:26px; background:linear-gradient(135deg,var(--primary),var(--secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:2px; margin-bottom:8px; }
+    .badges-row { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+    .badge-item { font-size:18px; cursor:default; position:relative; transition:transform .2s; }
+    .badge-item:hover { transform:scale(1.4) rotate(5deg); }
+    .badge-item:hover::after { content:attr(data-tip); position:absolute; bottom:130%; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.9); color:#fff; font-size:10px; padding:4px 8px; border-radius:6px; white-space:nowrap; border:1px solid var(--border); z-index:100; pointer-events:none; }
+    #profile-bio { font-size:12px; color:var(--muted); line-height:1.7; min-height:18px; }
+    .sep { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:16px 0; }
+    .profile-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .social-links { display:flex; gap:8px; flex-wrap:wrap; }
+    .social-btn { display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:20px; background:rgba(255,255,255,.05); border:1px solid var(--border); color:var(--text); text-decoration:none; font-size:11px; letter-spacing:1px; transition:all .2s; }
+    .social-btn:hover { background:rgba(0,206,209,.15); border-color:var(--primary); transform:translateY(-2px); box-shadow:0 5px 15px rgba(0,206,209,.2); }
+    .views-badge { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted); }
+    .views-badge svg { width:14px; height:14px; stroke:var(--primary); fill:none; }
+    #visitor-count { color:var(--primary); font-weight:700; }
+
+    .skills-title { font-family:'Orbitron',sans-serif; font-size:11px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; margin-bottom:18px; }
+    .skill-row { margin-bottom:14px; }
+    .skill-info { display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px; }
+    .skill-pct { color:var(--primary); }
+    .skill-track { height:6px; background:rgba(255,255,255,.08); border-radius:3px; overflow:hidden; }
+    .skill-fill { height:100%; border-radius:3px; width:0; background:linear-gradient(90deg,var(--primary),var(--secondary)); transition:width 1.5s cubic-bezier(.2,.8,.3,1); box-shadow:0 0 10px rgba(0,206,209,.4); }
+
+    .dock { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:50; display:flex; align-items:center; gap:8px; background:rgba(0,0,0,.8); backdrop-filter:blur(15px); border:1px solid var(--border); border-radius:40px; padding:8px 16px; box-shadow:var(--glow); }
+    .theme-dot { width:28px; height:28px; border-radius:50%; cursor:pointer; border:2px solid rgba(255,255,255,.15); transition:all .25s; }
+    .theme-dot:hover { transform:scale(1.2); border-color:rgba(255,255,255,.8); }
+    .theme-dot.active { border-color:#fff; box-shadow:0 0 12px rgba(255,255,255,.4); }
+    .dock-sep { width:1px; height:20px; background:var(--border); }
+    .dock-link { padding:5px 14px; border-radius:20px; background:rgba(255,255,255,.07); border:1px solid var(--border); color:var(--text); font-size:11px; font-family:'Space Mono',monospace; letter-spacing:1px; text-decoration:none; transition:all .2s; }
+    .dock-link:hover { background:rgba(0,206,209,.2); border-color:var(--primary); }
+
+    .music-bar { position:fixed; top:20px; right:20px; z-index:50; display:flex; align-items:center; gap:10px; background:rgba(0,0,0,.8); backdrop-filter:blur(15px); border:1px solid var(--border); border-radius:30px; padding:8px 14px; opacity:0; transition:opacity .5s; }
+    .music-bar.show { opacity:1; }
+    .viz { display:flex; align-items:flex-end; gap:2px; height:18px; }
+    .vb { width:3px; background:var(--primary); border-radius:2px; animation:vp .8s ease-in-out infinite; }
+    .vb:nth-child(1){height:40%;animation-delay:0s;} .vb:nth-child(2){height:80%;animation-delay:.15s;} .vb:nth-child(3){height:55%;animation-delay:.3s;} .vb:nth-child(4){height:100%;animation-delay:.1s;} .vb:nth-child(5){height:60%;animation-delay:.25s;}
+    @keyframes vp { 0%,100%{transform:scaleY(1);} 50%{transform:scaleY(.2);} }
+    .viz.paused .vb { animation-play-state:paused; }
+    .music-btn { cursor:pointer; stroke:var(--primary); fill:none; width:18px; height:18px; }
+    .vol { -webkit-appearance:none; width:70px; height:4px; border-radius:2px; outline:none; cursor:pointer; background:linear-gradient(90deg,var(--primary) 30%,rgba(255,255,255,.15) 30%); }
+    .vol::-webkit-slider-thumb { -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:#fff; cursor:grab; }
+
+    @media(max-width:600px){
+      .profile-header{flex-direction:column;align-items:center;text-align:center;}
+      .avatar-wrap{width:90px;height:90px;} #avatar-img{width:90px;height:90px;}
+      #profile-name{font-size:20px;} .name-row,.badges-row{justify-content:center;}
+      .profile-footer{justify-content:center;} #profile-card,#skills-card{padding:18px;}
+    }
+  </style>
+</head>
+<body>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+  <div id="bg-layer"><div id="bg-inner"></div></div>
+  <div id="bg-overlay"></div>
+  <div class="scanlines"></div>
+  <canvas id="particles"></canvas>
+
+  <div id="start-screen">
+    <div class="logo">VOID.BIO</div>
+    <div class="sub">the profile page that hits different</div>
+    <div class="hint" id="hint-text">— CLICK TO ENTER —</div>
+  </div>
+
+  <div class="music-bar" id="music-bar">
+    <div class="viz paused" id="viz">
+      <div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div>
+    </div>
+    <svg id="music-btn" class="music-btn" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round">
+      <path d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+    </svg>
+    <input type="range" class="vol" id="vol" min="0" max="1" step="0.01" value="0.3">
+  </div>
+
+  <div class="page" id="main-page" style="display:none;">
+    <div id="profile-card">
+      <div class="profile-header">
+        <div class="avatar-wrap">
+          <div class="avatar-ring"></div>
+          <img id="avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a" alt="avatar">
+          <div class="avatar-status"></div>
+        </div>
+        <div class="profile-meta">
+          <div id="profile-name">VOID_USER</div>
+          <div class="badges-row" id="badges-row"></div>
+          <div id="profile-bio"></div>
+        </div>
+      </div>
+      <div class="sep"></div>
+      <div class="profile-footer">
+        <div class="social-links" id="social-links"></div>
+        <div class="views-badge">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span id="visitor-count">0</span><span>views</span>
+        </div>
+      </div>
+    </div>
+    <div id="skills-card">
+      <div class="skills-title">// skills</div>
+      <div id="skills-container"></div>
+    </div>
+  </div>
+
+  <div class="dock" id="dock" style="display:none;">
+    <div class="theme-dot active" data-theme="default" style="background:linear-gradient(135deg,#00CED1,#FF6B9E);"></div>
+    <div class="theme-dot" data-theme="hacker"  style="background:linear-gradient(135deg,#22C55E,#2DD4BF);"></div>
+    <div class="theme-dot" data-theme="rain"    style="background:linear-gradient(135deg,#3B82F6,#6366F1);"></div>
+    <div class="theme-dot" data-theme="anime"   style="background:linear-gradient(135deg,#EF4444,#F97316);"></div>
+    <div class="theme-dot" data-theme="gold"    style="background:linear-gradient(135deg,#EAB308,#FACC15);"></div>
+    <div class="dock-sep"></div>
+    <a href="customize.html" class="dock-link">✦ Customize</a>
+  </div>
+
+  <audio id="audio" loop></audio>
+
+  <script>
+  const DEFAULTS = {
+    name:"VOID_USER", bio:"// built different. guns.lol & fakecrime.bio couldn't handle it.",
+    avatar:"https://api.dicebear.com/7.x/bottts/svg?seed=void&backgroundColor=0a0a1a",
+    avatarData:null, bgImage:null, musicUrl:"", defaultVol:0.3,
+    startText:"— CLICK TO ENTER —", theme:"default",
+    socials:[{platform:"Discord",href:"#",icon:"💬"},{platform:"GitHub",href:"#",icon:"⬡"},{platform:"YouTube",href:"#",icon:"▶"},{platform:"TikTok",href:"#",icon:"♪"}],
+    badges:[{emoji:"⚡",tip:"Owner"},{emoji:"🛡",tip:"Staff"},{emoji:"💎",tip:"Premium"},{emoji:"🔥",tip:"OG"},{emoji:"✓",tip:"Verified"},{emoji:"🐛",tip:"Bug Hunter"}],
+    skills:[{name:"Python",pct:87},{name:"C++",pct:75},{name:"JavaScript",pct:80}]
+  };
+  const THEMES = {
+    default:{primary:"#00CED1",secondary:"#FF6B9E"},
+    hacker: {primary:"#22C55E",secondary:"#2DD4BF"},
+    rain:   {primary:"#3B82F6",secondary:"#6366F1"},
+    anime:  {primary:"#EF4444",secondary:"#F97316"},
+    gold:   {primary:"#EAB308",secondary:"#FACC15"},
+  };
+  const ICONS = {Discord:"💬",GitHub:"⬡",YouTube:"▶",TikTok:"♪","Twitter/X":"✕",Instagram:"📷",Twitch:"🟣",Steam:"🎮",Spotify:"🎵",Website:"🌐"};
+
+  // Load saved customizations
+  const saved = JSON.parse(localStorage.getItem("void_custom")||"{}");
+  const C = Object.assign({}, DEFAULTS, saved);
+  if (saved.badges && saved.badges.length) C.badges = saved.badges;
+  if (saved.socials && saved.socials.length) C.socials = saved.socials.map(s=>({platform:s.platform||s.label||"Link",href:s.href||"#",icon:s.icon||ICONS[s.platform]||"🔗"}));
+
+  // Cursor
+  const cur=document.getElementById("cursor"),dot=document.getElementById("cursor-dot");
+  let mx=0,my=0,cx=0,cy=0;
+  document.addEventListener("mousemove",e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+"px";dot.style.top=my+"px";});
+  (function loop(){cx+=(mx-cx)*.14;cy+=(my-cy)*.14;cur.style.left=cx+"px";cur.style.top=cy+"px";requestAnimationFrame(loop);})();
+  document.addEventListener("mousedown",()=>{cur.style.width="11px";cur.style.height="11px";});
+  document.addEventListener("mouseup",  ()=>{cur.style.width="20px";cur.style.height="20px";});
+
+  // Particles
+  const cvs=document.getElementById("particles"),ctx=cvs.getContext("2d");
+  let W,H,pts=[];
+  function resize(){W=cvs.width=innerWidth;H=cvs.height=innerHeight;}
+  resize();addEventListener("resize",resize);
+  for(let i=0;i<70;i++) pts.push({x:Math.random()*1920,y:Math.random()*1080,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.4+.4});
+  function drawPts(){
+    ctx.clearRect(0,0,W,H);
+    const col=getComputedStyle(document.documentElement).getPropertyValue("--primary").trim()||"#00CED1";
+    pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=col+"44";ctx.fill();});
+    requestAnimationFrame(drawPts);
+  }
+  drawPts();
+
+  // Theme
+  function applyTheme(name){
+    const t=THEMES[name]||THEMES.default;
+    const p=C.primaryColor||t.primary, s=C.secondaryColor||t.secondary;
+    document.documentElement.style.setProperty("--primary",p);
+    document.documentElement.style.setProperty("--secondary",s);
+    document.documentElement.style.setProperty("--border",p+"44");
+    document.documentElement.style.setProperty("--glow",`0 0 30px ${p}44`);
+    document.querySelectorAll(".theme-dot").forEach(d=>d.classList.toggle("active",d.dataset.theme===name));
+  }
+  applyTheme(C.theme||"default");
+  document.querySelectorAll(".theme-dot").forEach(d=>d.addEventListener("click",()=>{C.theme=d.dataset.theme;applyTheme(C.theme);}));
+
+  // Background — reads base64 data URL saved from file upload in customize page
+  function applyBackground(){
+    const layer=document.getElementById("bg-inner");
+    layer.innerHTML="";
+    if(C.bgImage){
+      if(C.bgImage.startsWith("data:video")){
+        const v=document.createElement("video");
+        v.src=C.bgImage;v.autoplay=true;v.loop=true;v.muted=true;v.playsInline=true;
+        layer.appendChild(v);
+      } else {
+        const img=document.createElement("img");
+        img.src=C.bgImage;
+        layer.appendChild(img);
+      }
+    }
+  }
+  applyBackground();
+
+  // Build profile
+  function buildProfile(){
+    // Name typewriter
+    const nameEl=document.getElementById("profile-name");
+    const fullName=C.name||"VOID_USER";
+    let ni=0; nameEl.textContent="";
+    function typeName(){if(ni<=fullName.length){nameEl.textContent=fullName.slice(0,ni)+(ni<fullName.length?"▌":"");ni++;setTimeout(typeName,ni<fullName.length?80:0);}}
+    typeName();
+
+    // Avatar — avatarData is a base64 string from your file picker upload
+    const avatarEl=document.getElementById("avatar-img");
+    if(C.avatarData)      avatarEl.src=C.avatarData;   // uploaded from computer
+    else if(C.avatar)     avatarEl.src=C.avatar;        // URL fallback
+
+    // Bio typewriter
+    const bioEl=document.getElementById("profile-bio");
+    const bio=C.bio||"";
+    let bi=0; bioEl.textContent="";
+    function typeBio(){if(bi<=bio.length){bioEl.textContent=bio.slice(0,bi)+(bi<bio.length?"▌":"");bi++;setTimeout(typeBio,22);}}
+    setTimeout(typeBio,600);
+
+    // Badges
+    const br=document.getElementById("badges-row"); br.innerHTML="";
+    C.badges.forEach(b=>{const s=document.createElement("span");s.className="badge-item";s.textContent=b.emoji;s.setAttribute("data-tip",b.tip||"");br.appendChild(s);});
+
+    // Socials
+    const sl=document.getElementById("social-links"); sl.innerHTML="";
+    C.socials.forEach(s=>{const a=document.createElement("a");a.className="social-btn";a.href=s.href||"#";a.target="_blank";a.innerHTML=`<span>${s.icon||"🔗"}</span>${s.platform||s.label||"Link"}`;sl.appendChild(a);});
+
+    // Views
+    let v=parseInt(localStorage.getItem("void_views")||"0");
+    if(!localStorage.getItem("void_visited")){v++;localStorage.setItem("void_visited","1");}
+    if(v<100) v=92134+v;
+    localStorage.setItem("void_views",v);
+    document.getElementById("visitor-count").textContent=v.toLocaleString();
+
+    // Skills
+    const sc=document.getElementById("skills-container"); sc.innerHTML="";
+    C.skills.forEach(s=>{const d=document.createElement("div");d.className="skill-row";d.innerHTML=`<div class="skill-info"><span>${s.name}</span><span class="skill-pct">${s.pct}%</span></div><div class="skill-track"><div class="skill-fill" data-pct="${s.pct}"></div></div>`;sc.appendChild(d);});
+    setTimeout(()=>document.querySelectorAll(".skill-fill").forEach(el=>el.style.width=el.dataset.pct+"%"),400);
+
+    // Music
+    const audio=document.getElementById("audio");
+    if(C.musicUrl){audio.src=C.musicUrl;audio.volume=parseFloat(C.defaultVol||.3);audio.play().catch(()=>{});document.getElementById("viz").classList.remove("paused");playing=true;}
+    document.getElementById("vol").value=parseFloat(C.defaultVol||.3);
+  }
+
+  // Music toggle
+  const audio=document.getElementById("audio"),viz=document.getElementById("viz");
+  let playing=false;
+  document.getElementById("music-btn").addEventListener("click",()=>{if(playing){audio.pause();viz.classList.add("paused");}else{audio.play().catch(()=>{});viz.classList.remove("paused");}playing=!playing;});
+  document.getElementById("vol").addEventListener("input",e=>audio.volume=e.target.value);
+
+  // 3D tilt
+  ["profile-card","skills-card"].forEach(id=>{
+    const el=document.getElementById(id); if(!el)return;
+    el.addEventListener("mousemove",e=>{const r=el.getBoundingClientRect();const x=(e.clientX-r.left-r.width/2)/(r.width/2);const y=(e.clientY-r.top-r.height/2)/(r.height/2);el.style.transform=`perspective(900px) rotateY(${x*6}deg) rotateX(${-y*4}deg)`;});
+    el.addEventListener("mouseleave",()=>el.style.transform="");
+  });
+
+  // Start screen
+  document.getElementById("hint-text").textContent=C.startText||"— CLICK TO ENTER —";
+  document.getElementById("start-screen").addEventListener("click",()=>{
+    document.getElementById("start-screen").classList.add("gone");
+    document.getElementById("main-page").style.display="flex";
+    document.getElementById("dock").style.display="flex";
+    document.getElementById("music-bar").classList.add("show");
+    buildProfile();
+  });
+  </script>
+</body>
+</html>
